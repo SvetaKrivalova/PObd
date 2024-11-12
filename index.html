@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ПО для БД</title>
+</head>
+<body>
+
+    <h1>Графическая база - система управления базой размеченных изображений</h1>
+
+<!-- Блок обзор файлов -->
+    <div class="viewFiles"> <h1>Блок обзор файлов</h1>
+
+        <input type="checkbox" name="" id=""> Только с разметкой
+        <input type="checkbox" name="" id=""> Только с валидацией
+
+        <!-- Список файлов -->
+        <div class="listFiles">
+            <label class="" for="file">Список файлов</label>
+            <span class="file" id="file-label"></span>
+
+        </div>
+
+        <!-- Выбранный файл -->
+        <div class="thatFile">
+            <p>Файл:</p>
+             ИМЯ И ФОТО выбранного ФАЙЛА
+
+             <div class="validation">
+                <p>Валидация:</p>
+                ДАТА ИМЯ РЕЗУЛЬТАТ
+             </div>
+        </div>
+    </div>
+
+<!-- Блок создание выборки для обучения -->
+    <div class="createSample"> <h1>Блок создание выборки для обучения</h1>
+        <input type="checkbox" name="" id=""> Только с валидацией
+
+        <div class="listFiles">
+            <label class="" for="file">Список файлов</label>
+            <span class="file" id="file-label"></span>
+
+        </div>
+
+        <!-- Показывается сколько выбрано файлов -->
+        <div class="choiceFiles">
+            <p>Выбрано</p>  КОЛИЧЕСТВО ВЫБРАНЫХ ФАЙЛОВ <p>файлов из</p> ВСЕГО ФАЙЛОВ
+
+            <p>Выбрать автоматически</p> 
+            <input type="number" name="" id=""> 
+            <p>из</p> ВСЕГО ФАЙЛОВ <p>файлов</p>
+
+        </div>
+
+
+        <!-- Выбираем папку куда сохранить -->
+        <form class="saveDataSet" id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <label class="file-btn" for="showUploadForm">Выбрать папку</label>
+            <button class="downloadBtn2" type="submit">Сохранить</button>
+            <input id="showUploadForm" name="files" multiple class="custom-file-input" type="file" accept=".mp4, .mov, .avi, .jpg, .jpeg, .png" onchange="updateFileLabel(this.files)">
+            
+
+        </form>
+
+
+    </div>
+
+<!-- Блок валидация -->
+<div class="validationBloc"> <h1>Блок валидация</h1>
+
+    <!-- Выбор -->
+    <div class="checkboxs">
+        <input type="checkbox" name="" id=""> Показать все
+        <input type="checkbox" name="" id=""> Только с разметкой
+        <input type="checkbox" name="" id=""> Только с валидацией
+        <input type="checkbox" name="" id=""> Только с валидацией
+    </div>
+
+    <!-- Список файлов -->
+    <div class="listFiles">
+        <label class="" for="file">Список файлов</label>
+        <span class="file" id="file-label"></span>
+    </div>
+
+    <!-- РЕЗУЛЬТАТ -->
+    <div class="graficVal">
+        <img src="" alt="">
+    </div>
+
+    <!-- Кнопки -->
+    <div class="btn">
+        <button type="button">Fail</button>
+        <button type="button">ОК</button>
+    </div>
+</div>
+
+</body>
+</html>
