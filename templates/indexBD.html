@@ -1,0 +1,132 @@
+<html>
+<head>
+</head>
+<body>
+<h1>Графическая база - система управления базой размеченных изображений</h1>
+<hr>
+<h2>Обзор файлов</h2>
+<form>
+<table><tr>
+<td valign="top">
+<label>
+    <input type="checkbox" name="languages" value="HTML">
+    Только с разметкой
+  </label>
+  <br>
+  <label>
+    <input type="checkbox" name="languages" value="CSS">
+    Только с валидацией
+  </label>
+  <br>
+
+  <label for="fruits">Список файлов:</label><br>
+  <select size="20" id="fruits" name="fruits" multiple>
+    <option value="apple">Яблоко</option>
+    <option value="banana">Банан</option>
+    <option value="orange">Апельсин</option>
+    <option value="apple">Яблоко</option>
+    <option value="banana">Банан</option>
+    <option value="orange">Апельсин</option>
+    <option value="apple">Яблоко</option>
+    <option value="banana">Банан</option>
+    <option value="orange">Апельсин</option>
+    <option value="apple">Яблоко</option>
+    <option value="banana">Банан</option>
+    <option value="orange">Апельсин</option>
+  </select>
+<br>
+</td>
+
+<td  valign="top">
+<br><br><br>
+
+Файл:
+ИмяФайла.jpg
+<br>
+<img src="" width="200" height="200"><br>
+Валидация:<br>
+дата имя результат<br>
+дата имя результат<br>
+
+</td>
+</tr>
+</table>
+</form>
+<hr>
+
+<h2>Создание выборки для обучения</h2>
+<form>
+<table>
+<tr>
+<td>
+  <label>
+    <input type="checkbox" name="languages" value="CSS">
+    Только с валидацией
+  </label>
+  <br>
+  <label for="fruits">Список файлов:</label><br>
+  <select id="fruits" name="fruits" multiple>
+    <option value="apple">Яблоко</option>
+    <option value="banana">Банан</option>
+    <option value="orange">Апельсин</option>
+  </select>
+
+</td>
+<td>
+Выбрано ___ файлов из ___<br>
+Выбрать автоматически  <input type="text"> из __ файлов.<br>
+Куда сохранить новый датасет?<br>
+<input type="file" name="Выберите каталог для сохранения"><br>
+<button type="button">Сохранить скрипт</button>
+</td>
+</tr>
+</table>
+</form>
+
+<hr>
+<h2>Валидация</h2>
+<form>
+  <label>
+    <input type="checkbox" name="languages" value="CSS">
+    Показать все
+  </label>
+  <br>
+  <label>
+    <input type="checkbox" name="languages" value="CSS">
+    Только без валидации
+  </label>
+  <br>
+  <label>
+    <input type="checkbox" name="languages" value="CSS">
+    Только с валидацией
+  </label>
+  <br>
+  <label>
+    <input type="checkbox" name="languages" value="CSS">
+    Только с валидацией от   
+<select id="fruits" name="fruits" >
+    <option value="apple">Яблоко</option>
+    <option value="banana">Банан</option>
+    <option value="orange">Апельсин</option>
+  </select>
+  </label>
+  <br>
+  <label>
+    <input type="checkbox" name="languages" value="CSS">
+    Только не прошедшие валидацию
+  </label>
+  <br>
+  <label for="fruits">Список файлов:</label><br>
+  <select id="fruits" name="fruits" multiple>
+    <option value="apple">Яблоко</option>
+    <option value="banana">Банан</option>
+    <option value="orange">Апельсин</option>
+  </select>
+<br>
+<img src="" width="200" height="200"><br>
+<button type="button">Fail</button>
+
+<button type="button">ОК</button>
+</form>
+</body>
+</html>
