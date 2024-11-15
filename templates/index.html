@@ -76,6 +76,53 @@
         
 
 
+
+        <div class="blocTwo">
+            <h1>Блок создание выборки для обучения</h1>
+            
+            <label class="inputsval">
+                <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
+                Только с разметкой
+              </label>
+            
+
+            <div class="listFiles">
+            
+                <label class="fileList" for="file">Список файлов</label>
+                <!-- <span class="file" id="file-label"></span> -->
+                <select size="20" id="fruits" name="fruits" onchange="updateImage()" multiple onchange="updateFileCount()">
+                    {% for yolka in yolki %}
+                        <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="choiceFiles">
+
+            <!-- Показывается сколько выбрано файлов -->
+            <div class="choiceFiles">
+                <p id="fileCount">Выбрано файлов: 0 из {{ yolki|length }}</p>
+                <p class="auto">Выбрать автоматически <input type="number" name="" id=""> из {{ yolki|length }} файлов </p> 
+            </div>
+
+            <!-- Выбираем папку куда сохранить -->
+            <form class="saveDataSet" id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                <label class="file-btn" for="showUploadForm">Выбрать папку</label>
+                <button class="downloadBtn2" type="submit">Сохранить</button>
+                <input id="showUploadForm" name="files" multiple class="custom-file-input" type="file" accept=".mp4, .mov, .avi, .jpg, .jpeg, .png" onchange="updateFileLabel(this.files)">
+            </form>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
         <!-- <label>
             <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
             Только с разметкой
