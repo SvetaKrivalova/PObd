@@ -51,3 +51,14 @@ function filterFiles() {
         }
     }
 }
+
+
+
+function updateFileCount() {
+    const select = document.getElementById('fruits');
+    const selectedOptions = Array.from(select.selectedOptions); // Получаем выбранные опции
+    const count = selectedOptions.length; // Количество выбранных опций
+    const totalFiles = select.options.length; // Общее количество файлов
+    document.getElementById('fileCount').textContent = `Выбрано файлов: ${count} из ${totalFiles}`; // Обновляем текст
+}
+
