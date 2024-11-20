@@ -17,12 +17,6 @@ document.getElementById('showUploadForm').addEventListener('click', function() {
     uploadForm.style.display = uploadForm.style.display === 'none' ? 'block' : 'none';
 })
 
-function updateFileLabel(files) {
-       const fileLabel = document.getElementById('file-label');
-       const fileNames = Array.from(files).map(file => file.name).join(', ');
-       fileLabel.textContent = fileNames;
-}
-
 function updateImage() {
     var select = document.getElementById("fruits");
     var selectedFileName = select.options[select.selectedIndex].text;
@@ -52,13 +46,32 @@ function filterFiles() {
     }
 }
 
-
-
-function updateFileCount() {
-    const select = document.getElementById('fruits');
-    const selectedOptions = Array.from(select.selectedOptions); // Получаем выбранные опции
-    const count = selectedOptions.length; // Количество выбранных опций
-    const totalFiles = select.options.length; // Общее количество файлов
-    document.getElementById('fileCount').textContent = `Выбрано файлов: ${count} из ${totalFiles}`; // Обновляем текст
+function updateFileLabel(files) {
+    const fileNames = Array.from(files).map(file => file.name).join(', ');
+    const label = document.querySelector('.selectFolderBtn-btn');
+    label.textContent = fileNames.length > 0 ? `Выбрано файлов: ${fileNames}` : 'Выбрать папку';
 }
 
+document.getElementById('photoForm').onsubmit = function(event) {
+    event.preventDefault();
+    const numPhotos = document.getElementById('numPhotos').value;
+    const destinationFolder = document.getElementById('destinationFolder').value;
+
+    const formData = new FormData();
+    formData.append('num_photos', numPhotos);
+    formData.append('destination_folder', destinationFolder);
+    console.log(`Количество фотографий: ${numPhotos}`);
+    console.log(`Путь к папке назначения: ${destinationFolder}`);
+
+    fetch('/copy_photos', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || data.error);
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+    });
+};

@@ -47,24 +47,18 @@
 
         <div class="viewFiles">
     
-            <!-- Список файлов -->
             <div class="listFiles">
-            
                 <label class="fileList" for="file">Список файлов</label>
-                <!-- <span class="file" id="file-label"></span> -->
                 <select size="20" id="fruits" name="fruits" onchange="updateImage()">
                     {% for yolka in yolki %}
                         <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
                     {% endfor %}
                 </select>
-                
             </div>
 
-            <!-- Выбранный файл -->
             <div class="thatFile">
                 Файл: <span id="selectedFileName"></span><br>
                 <img id="fileImage" src="" width="400" height="400"><br>
-
 
                 <!-- <div class="validation">
                     <p>Валидация:</p>
@@ -74,89 +68,52 @@
         </div>
         </main>
         
-
-
-
         <div class="blocTwo">
             <h1>Блок создание выборки для обучения</h1>
-            
-            <label class="inputsval">
-                <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
-                Только с разметкой
-              </label>
-            
 
             <div class="listFiles">
-            
                 <label class="fileList" for="file">Список файлов</label>
-                <!-- <span class="file" id="file-label"></span> -->
-                <select size="20" id="fruits" name="fruits" onchange="updateImage()" multiple onchange="updateFileCount()">
+                <select size="20" id="vegetables" name="vegetables" multiple onchange="updateFileCount()">
                     {% for yolka in yolki %}
-                        <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
+                        {% if yolka.txt is not none %}
+                            <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="choiceFiles">
-
-            <!-- Показывается сколько выбрано файлов -->
-            <div class="choiceFiles">
-                <p id="fileCount">Выбрано файлов: 0 из {{ yolki|length }}</p>
-                <p class="auto">Выбрать автоматически <input type="number" name="" id=""> из {{ yolki|length }} файлов </p> 
-            </div>
-
-            <!-- Выбираем папку куда сохранить -->
-            <form class="saveDataSet" id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-                <label class="file-btn" for="showUploadForm">Выбрать папку</label>
-                <button class="downloadBtn2" type="submit">Сохранить</button>
-                <input id="showUploadForm" name="files" multiple class="custom-file-input" type="file" accept=".mp4, .mov, .avi, .jpg, .jpeg, .png" onchange="updateFileLabel(this.files)">
+            <form id="photoForm" action="/copy_photos" method="post">
+                <label for="numPhotos">Количество фотографий:</label>
+                <input type="number" id="numPhotos" name="num_photos" min="1" max="100" required>
+                
+                <!-- <label for="destinationFolder">Путь к папке назначения:</label>
+                <input type="text" id="destinationFolder" name="destination_folder" required placeholder="Введите путь к папке"> -->
+                
+                <button type="submit">Отправить</button>
             </form>
+
+            <form action="{{ url_for('split_dataset') }}" method="post">
+                <button type="submit">Разделить датасет</button>
+            </form>
+
+            <form action="{{ url_for('create_class') }}" method="post">
+                <input type="text" name="class_name" placeholder="Введите название класса" required>
+                <button type="submit">Создать класс</button>
+            </form>
+
+            <div class="container mt-5">
+                <h1>Обучение модели YOLO</h1>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('train') }}" method="post">
+                    <button type="submit" class="btn btn-primary">Запустить обучение</button>
+                </form>
             </div>
         </div>
-
-
-
-
-
-
-
-
-
-
-        <!-- <label>
-            <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
-            Только с разметкой
-        </label>
-        <br>
-        <label>
-            <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()">
-            Только с валидацией
-        </label>
-        <br> -->
-
-        <!-- <form>
-            <table>
-                <tr>
-                    <td valign="top">
-                        <label for="fruits">Список файлов:</label><br>
-                        <select size="20" id="fruits" name="fruits" onchange="updateImage()">
-                            {% for yolka in yolki %}
-                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
-                            {% endfor %}
-                        </select>
-                        <br>
-                    </td>
-    
-                    <td valign="top">
-                        <br><br><br>
-                        Файл: <span id="selectedFileName"></span><br>
-                        <img id="fileImage" src="" width="200" height="200"><br>
-                        Валидация:<br>
-                        дата имя результат<br>
-                        дата имя результат<br>
-                    </td>
-                </tr>
-            </table>
-        </form> -->
 </body>
 </html>
