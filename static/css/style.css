@@ -126,13 +126,91 @@ body{
         display: none; /* Скрываем по умолчанию */
         z-index: 999; /* Устанавливаем на передний план */
       }
+
+
+.show {
+  display: block; /* Показываем попап и затемнение */
+}
+
+
+.CreateDataSet{
+  position: fixed;
+  background-color: #FDFEFE;
+  border: none;
+  display: none;
+  width: 650px;
+  /* height: 433px; */
+            
+
+  
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  z-index: 9999;
+  
+  
+  padding: 40px;
+  border-radius: 18px;
+}
+
+     
+.overlayForCD {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Затемнение с прозрачностью 70% */
+  display: none; /* Скрываем по умолчанию */
+  z-index: 999; /* Устанавливаем на передний план */
+}
       
-      .show {
-        display: block; /* Показываем попап и затемнение */
-      }
+
+.showForCD {
+  display: block; /* Показываем попап и затемнение */
+}
+   
+
+.Script{
+  position: fixed;
+  background-color: #FDFEFE;
+  border: none;
+  display: none;
+  width: 650px;
+  /* height: 433px; */
+            
+
+  
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  z-index: 9999;
+  
+  
+  padding: 40px;
+  border-radius: 18px;
+}
+
+     
+.overlayForScript {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Затемнение с прозрачностью 70% */
+  display: none; /* Скрываем по умолчанию */
+  z-index: 999; /* Устанавливаем на передний план */
+}
       
+
+.showForScript {
+  display: block; /* Показываем попап и затемнение */
+}
       
-      .VerhLoadingScreen{
+.VerhLoadingScreen{
         display: flex;
         justify-content: space-between;
        
