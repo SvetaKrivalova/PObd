@@ -144,3 +144,70 @@ function closeScript() {
     document.querySelector('.Script').classList.remove('showForScript');
     LoadingScreen.style.display = 'none';
 }
+
+
+const trainInput = document.getElementById('trainSize');
+    const valInput = document.getElementById('valSize');
+
+    trainInput.addEventListener('input', function() {
+        const trainValue = parseFloat(trainInput.value);
+        if (!isNaN(trainValue)) {
+            valInput.value = (1 - trainValue).toFixed(2);
+        }
+    });
+
+    valInput.addEventListener('input', function() {
+        const valValue = parseFloat(valInput.value);
+        if (!isNaN(valValue)) {
+            trainInput.value = (1 - valValue).toFixed(2);
+        }
+    });
+
+
+$(document).ready(function() {
+    $('#photoForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.exists) {
+                    // Display the message in an alert box
+                    alert(response.message);
+                    // Ask the user to confirm
+                    if (confirm("Продолжить?")) {
+                        // If the user confirms, send the form again
+                        $.ajax({
+                            type: 'POST',
+                            url: '/copy_photos', // Same handler
+                            data: $(this).serialize(),
+                            success: function() {
+                                window.location.href = '/'; // Redirect to the main page
+                            },
+                            error: function(err) {
+                                alert('Ошибка: ' + err.responseJSON.error);
+                            }
+                        });
+                    }
+                } else {
+                    // If the folder doesn't exist, continue with the copy operation
+                    window.location.href = '/'; // Redirect to the main page
+                }
+            },
+            error: function(err) {
+                alert('Ошибка: ' + err.responseJSON.error);
+            }
+        });
+    });
+});
+
+
+function updateFileCount() {
+    const select = document.getElementById('datasets');
+    const selectedOptions = Array.from(select.selectedOptions);
+    const count = selectedOptions.length;
+
+    console.log(`Количество выбранных файлов: ${count}`);
+}
