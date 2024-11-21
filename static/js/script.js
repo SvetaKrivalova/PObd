@@ -115,3 +115,32 @@ function handleFlashMessages(messages) {
         });
     });
 }
+
+
+function openCreateDataSet() {
+    var LoadingScreen = document.querySelector('.CreateDataSet');
+    document.querySelector('.overlayForCD').classList.add('showForCD');
+    document.querySelector('.CreateDataSet').classList.add('showForCD');
+    LoadingScreen.style.display = 'block';
+}
+   
+function closeCreateDataSet() {
+    var LoadingScreen = document.querySelector('.CreateDataSet');
+    document.querySelector('.overlayForCD').classList.remove('showForCD');
+    document.querySelector('.CreateDataSet').classList.remove('showForCD');
+    LoadingScreen.style.display = 'none';
+}
+
+function openScript() {
+    var LoadingScreen = document.querySelector('.Script');
+    document.querySelector('.overlayForScript').classList.add('showForScript');
+    document.querySelector('.Script').classList.add('showForScript');
+    LoadingScreen.style.display = 'block';
+}
+   
+function closeScript() {
+    var LoadingScreen = document.querySelector('.Script');
+    document.querySelector('.overlayForScript').classList.remove('showForScript');
+    document.querySelector('.Script').classList.remove('showForScript');
+    LoadingScreen.style.display = 'none';
+}
