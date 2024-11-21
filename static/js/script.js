@@ -26,6 +26,8 @@ function updateImage() {
     img.src = '/static/' + selectedFilePath;
 }
 
+
+
 function filterFiles() {
     const showAnnotated = document.getElementById('showAnnotated').checked;
     const select = document.getElementById('fruits');
@@ -75,3 +77,41 @@ document.getElementById('photoForm').onsubmit = function(event) {
         console.error('Ошибка:', error);
     });
 };
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    const imgsz = document.getElementById('imgsz').value;
+    const epochs = document.getElementById('epochs').value;
+    const batch = document.getElementById('batch').value;
+    const savePeriod = document.getElementById('save_period').value;
+
+    if (imgsz < 1 || epochs < 1 || batch < 1 || savePeriod < 1) {
+        e.preventDefault();
+        alert('Все значения должны быть больше 0.');
+    }
+});
+
+document.getElementById('numPhotos').addEventListener('input', function() {
+    const min = parseInt(this.min);
+    const max = parseInt(this.max);
+    const value = parseInt(this.value);
+
+    if (value < min || value > max) {
+        this.setCustomValidity(`Пожалуйста, введите число от ${min} до ${max}.`);
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+function handleFlashMessages(messages) {
+    messages.forEach(function(msg) {
+        let title = msg.category.charAt(0).toUpperCase() + msg.category.slice(1); 
+        let icon = msg.category === 'success' ? 'success' : 'error'; 
+
+        swal({
+            title: title,
+            text: msg.message,
+            icon: icon,
+            button: "ОК",
+        });
+    });
+}

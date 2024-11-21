@@ -16,6 +16,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+secret_key = os.urandom(24)
+app.secret_key = secret_key
+
 db = SQLAlchemy(app)
 
 class Yolka(db.Model):
@@ -193,18 +196,62 @@ def create_class():
     
     return redirect(url_for('index'))
 
+@app.route('/create_train_script', methods=['POST'])
+def create_train_script():
+    try:
+        imgsz = int(request.form['imgsz'])
+        epochs = int(request.form['epochs'])
+        batch = int(request.form['batch'])
+        save_period = int(request.form['save_period'])
+
+        yolo_dir = os.path.join(os.getcwd(), 'yolo')
+        script_path = os.path.join(yolo_dir, 'train.py')
+        script_content = f"""import torch
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
+from ultralytics import YOLO
+
+if __name__ == "__main__":
+    model = YOLO('yolo11n.pt')
+    results = model.train(
+        data='D:\\Yolki\\data.yaml',
+        imgsz={imgsz},
+        epochs={epochs},
+        batch={batch},
+        save_period={save_period}
+    )
+"""
+
+        with open(script_path, 'w') as f:
+            f.write(script_content)
+
+        flash('Файл train.py успешно создан!', 'success')
+    except Exception as e:
+        flash(f'Ошибка при создании файла: {e}', 'error')
+
+    return redirect(url_for('index'))
+
 @app.route('/train', methods=['POST'])
 def train():
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
     data_yaml_path = os.path.abspath(os.path.join(os.getcwd(), 'yolo', 'data.yaml'))
+    save_dir = os.path.abspath(os.path.join(os.getcwd(), 'yolo'))
     try:
+        imgsz = int(request.form['imgsz'])
+        epochs = int(request.form['epochs'])
+        batch = int(request.form['batch'])
+        save_period = int(request.form['save_period'])
+        
         model = YOLO('yolo11n.pt')
         results = model.train(
             data=data_yaml_path,
-            imgsz=640,
-            epochs=500,
-            batch=2,
-            save_period=50
+            imgsz=imgsz,
+            epochs=epochs,
+            batch=batch,
+            save_period=save_period,
+            project=save_dir,
+            name='runs'
         )
         flash('Обучение завершено успешно!', 'success')
     except Exception as e:
