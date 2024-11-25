@@ -6,6 +6,13 @@ body{
     flex-direction: column;
     background-color: #fafafa;
     }
+
+    .tabcontent {
+      display: none; /* Скрываем содержимое всех вкладок по умолчанию */
+  }
+  .active {
+      display: block; /* Показываем содержимое активной вкладки */
+  }
     
     .close-x{
         font-size: 30px;
