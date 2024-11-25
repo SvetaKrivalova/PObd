@@ -45,14 +45,7 @@ document.getElementById('showUploadForm').addEventListener('click', function() {
     uploadForm.style.display = uploadForm.style.display === 'none' ? 'block' : 'none';
 })
 
-function updateImage() {
-    var select = document.getElementById("fruits");
-    var selectedFileName = select.options[select.selectedIndex].text;
-    var selectedFilePath = select.value;
-    document.getElementById("selectedFileName").innerText = selectedFileName;
-    var img = document.getElementById("fileImage");
-    img.src = "/static/" + selectedFilePath;
-}
+
 
 function filterFiles() {
     const showAnnotated = document.getElementById('showAnnotated').checked;
@@ -146,7 +139,6 @@ function handleFlashMessages(messages) {
     });
 }
 
-
 function openCreateDataSet() {
     var LoadingScreen = document.querySelector('.CreateDataSet');
     document.querySelector('.overlayForCD').classList.add('showForCD');
@@ -233,7 +225,6 @@ $(document).ready(function() {
     });
 });
 
-
 function updateFileCount() {
     const select = document.getElementById('datasets');
     const selectedOptions = Array.from(select.selectedOptions);
@@ -241,3 +232,66 @@ function updateFileCount() {
 
     console.log(`Количество выбранных файлов: ${count}`);
 }
+
+
+
+let currentIndex = 0; // Индекс текущего файла
+        const selectElement = document.getElementById("fruitsV");
+
+        // Функция для обновления изображения
+        function updateImage(selectId, imgId, textId) {
+            var select = document.getElementById(selectId);
+            var selectedFileName = select.options[select.selectedIndex].text; 
+            var selectedFilePath = select.value; 
+            document.getElementById(textId).innerText = selectedFileName;
+            var img = document.getElementById(imgId);
+            img.src = "/static/" + selectedFilePath;
+            img.style.display = "block"; // Показываем изображение
+        }
+
+        // Функция для записи результата
+        function recordResult(result) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const fileName = selectedOption.value; // Получаем имя файла
+            const date = new Date().toISOString(); // Получаем текущую дату в формате ISO
+
+            fetch('/record_result', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user: 'Я',
+                    file: fileName,
+                    date: date,
+                    result: result
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Переходим к следующему файлу
+                    currentIndex++;
+                    if (currentIndex < selectElement.options.length) {
+                        selectElement.selectedIndex = currentIndex; // Устанавливаем следующий файл
+                        updateImage('fruitsV', 'fileImageV', 'selectedFileNameV'); // Обновляем изображение
+                    } else {
+                        alert('Обработка завершена!');
+                        // Можно добавить логику для завершения
+                    }
+                } else {
+                    alert('Ошибка при записи результата.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+        }
+
+        // Функция для завершения процесса
+        function endProcess() {
+            alert('Процесс завершен!');
+            // Здесь можно добавить логику для завершения, например, перенаправление или очистку данных
+        }
+
+        // Инициализация первой фотографии
+        updateImage('fruitsV', 'fileImageV', 'selectedFileNameV');

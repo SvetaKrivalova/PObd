@@ -13,7 +13,7 @@
 
     <header>
 
-        <p>Графическая база - система управления базой размеченных изображений</p>
+        ГРАФИЧЕСКИЙ ЧТО-ТО ТАМ
         
         <div class="tab">
             <button class="tablinks" onclick="openTab(event, 'OneBlock')" id="defaultOpen">Обзор файлов</button>
@@ -21,7 +21,7 @@
             <button class="tablinks" onclick="openTab(event, 'ThreeBlock')">Валидация</button>
         </div>
         
-       <p>ИМЯ ПОЛЬЗОВАТЕЛЯ</p>
+       ИМЯ ПОЛЬЗОВАТЕЛЯ
 
     </header>
 
@@ -66,16 +66,16 @@
                     <div class="viewFiles">
                         <div class="listFiles">
                             <label class="fileList" for="file">Список файлов</label>
-                            <select size="20" id="fruits" name="fruits" onchange="updateImage()">
+                            <select size="20" id="fruits" name="fruits" onchange="updateImage('fruits', 'fileImage', 'selectedFileName')">
                                 {% for yolka in yolki %}
-                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ yolka.photo }}</option>
+                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ yolka.photo }} </option>
                                 {% endfor %}
                             </select>
                         </div>
                     
                         <div class="thatFile">
                             Файл: <span id="selectedFileName"></span><br>
-                            <img id="fileImage" src="" alt=""><br>
+                            <img id="fileImage" src="" width="400" height="400" alt="Изображение"><br>
                         </div>
                     </div>
             </main>
@@ -206,30 +206,29 @@
 
         <div id="ThreeBlock" class="tabcontent">
 
-            <div class="viewFiles">
-        
-                <div class="listFiles">
-                    <label class="fileList" for="file">Список файлов</label>
-                    <select size="20" id="fruits" name="fruits" onchange="updateImage()">
-                        {% for yolka in yolki %}
-                            <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ yolka.photo }}</option>
-                        {% endfor %}
-                    </select>
+            <form action="{{ url_for('record_result') }}" method="POST">
+                <div class="viewFiles">
+                    <div class="listFiles">
+                        <label class="fileList" for="file">Список файлов</label>
+                        <select size="20" id="fruitsV" name="fruits" onchange="updateImage('fruitsV', 'fileImageV', 'selectedFileNameV')">
+                            {% for yolka in yolki %}
+                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ yolka.photo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="thatFile">
+                        Файл: <span id="selectedFileNameV"></span><br>
+                        <img id="fileImageV" src="" width="400" height="400" alt="Изображение"><br>
+                    </div>
+                
+                    <div>
+                        <button type="button" onclick="recordResult(1)">Да</button>
+                        <button type="button" onclick="recordResult(0)">Нет</button>
+                        <button type="button" onclick="endProcess()">Завершить процесс</button>
+                    </div>
                 </div>
-
-                <div class="thatFile">
-                    Файл: <span id="selectedFileName"></span><br>
-                    <img id="fileImage" src="" width="400" height="400"><br>
-
-                   
-                </div>
-
-                <div>
-                    <button>Пока фейл, далее</button>
-                    <button>Норм, далее</button>
-                    <button>Не знаю зачем, но ЗАКОНЧИТЬ ПРОЦЕСС</button>
-                </div>
-            </div>
+            </form>
 
             <div class="inputsval1">
                 <label class="inputsval">

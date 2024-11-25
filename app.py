@@ -3,20 +3,25 @@ import pandas as pd
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 import shutil
+import csv
 from sklearn.model_selection import train_test_split
+import uuid
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 YOLKA_CSV = 'yolka_data.csv'
 DATASETS_CSV = 'datasets_data.csv'
+VAL_CSV = 'val_data.csv'
 
-# Создаем пустые CSV-файлы, если они не существуют
 if not os.path.exists(YOLKA_CSV):
     pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date']).to_csv(YOLKA_CSV, index=False)
 
 if not os.path.exists(DATASETS_CSV):
     pd.DataFrame(columns=['id', 'dataset_name', 'dataset_path']).to_csv(DATASETS_CSV, index=False)
+
+if not os.path.exists(VAL_CSV):
+    pd.DataFrame(columns=['id', 'user', 'photo', 'val_date', 'result']).to_csv(VAL_CSV, index=False)
 
 @app.route('/')
 def index():
@@ -96,7 +101,6 @@ def upload_files():
             else:
                 print(f"Изображение для текстового файла не найдено: {image_filename}")
 
-    # Сохранение новых записей в CSV
     try:
         if os.path.exists(YOLKA_CSV):
             yolki_df = pd.read_csv(YOLKA_CSV)
@@ -107,14 +111,11 @@ def upload_files():
         yolki_df = pd.concat([yolki_df, new_entries_df], ignore_index=True)
         yolki_df.drop_duplicates(subset=['photo', 'txt'], keep='last', inplace=True)  # Удаляем дубликаты по photo и txt
 
-        # Если поле 'id' уже существует, мы просто сбрасываем индекс
         yolki_df.reset_index(drop=True, inplace=True)
 
-        # Обновляем поле id
-        yolki_df['id'] = range(1, len(yolki_df) + 1)  # Присваиваем id от 1 до n
+        yolki_df['id'] = range(1, len(yolki_df) + 1) 
 
-        # Сохраняем в CSV без изменения индексов
-        yolki_df.to_csv(YOLKA_CSV, index=False)  #
+        yolki_df.to_csv(YOLKA_CSV, index=False) 
         print("Записи успешно добавлены в CSV.")
     except Exception as e:
         print(f"Ошибка при сохранении в CSV: {e}")
@@ -261,13 +262,11 @@ def create_train_script():
         epochs = int(request.form['epochs'])
         batch = int(request.form['batch'])
         save_period = int(request.form['save_period'])
-        selected_dataset = request.form['selected_dataset']  # Получаем путь к выбранному датасету
+        selected_dataset = request.form['selected_dataset']
 
-        # Убедитесь, что путь к выбранному датасету корректный
         if not selected_dataset.endswith(os.path.sep):
             selected_dataset += os.path.sep
 
-        # Путь к скрипту train.py в папке выбранного датасета
         script_path = os.path.join(selected_dataset, 'train.py')
         
         script_content = f"""import torch
@@ -293,6 +292,36 @@ if __name__ == "__main__":
         flash('Файл train.py успешно создан!', 'success')
     except Exception as e:
         flash(f'Ошибка при создании файла: {e}', 'error')
+
+    return redirect(url_for('index'))
+
+
+@app.route('/record_result', methods=['POST'])
+def record_result():
+    data = request.get_json()
+
+    # Проверяем, что все необходимые данные присутствуют
+    if not all(key in data for key in ['user', 'file', 'date', 'result']):
+        return jsonify({'error': 'Missing data'}), 400
+
+    user = data['user']
+    file_name = data['file']
+    date = data['date']
+    result = data['result']
+    
+    # Генерируем уникальный id
+    unique_id = str(uuid.uuid4())  # Используем UUID для уникального идентификатора
+    
+    # Записываем данные в CSV
+    file_exists = os.path.isfile(VAL_CSV)
+    with open(VAL_CSV, mode='a', newline='') as csv_file:
+        fieldnames = ['id', 'user', 'photo', 'val_date', 'result']
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+        # Проверяем, существует ли файл, чтобы записать заголовки только если файл новый
+        if not file_exists or csv_file.tell() == 0:  # Проверяем, пуст ли файл
+            writer.writeheader()  # Записываем заголовки
+        writer.writerow({'id': unique_id, 'user': user, 'photo': file_name, 'val_date': date, 'result': result})
 
     return redirect(url_for('index'))
 
