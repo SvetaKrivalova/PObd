@@ -1,50 +1,31 @@
-import torch
 import os
+import pandas as pd
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
-from flask_sqlalchemy import SQLAlchemy
-from dotenv import load_dotenv
-from ultralytics import YOLO
-import random
 import shutil
-from sqlalchemy import func, text
 from sklearn.model_selection import train_test_split
 
-load_dotenv()
-
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = os.urandom(24)
 
-secret_key = os.urandom(24)
-app.secret_key = secret_key
+YOLKA_CSV = 'yolka_data.csv'
+DATASETS_CSV = 'datasets_data.csv'
 
-db = SQLAlchemy(app)
+# Создаем пустые CSV-файлы, если они не существуют
+if not os.path.exists(YOLKA_CSV):
+    pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date']).to_csv(YOLKA_CSV, index=False)
 
-class Yolka(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    photo = db.Column(db.String(255), nullable=True)
-    txt = db.Column(db.String(255), nullable=True)
-    photo_date = db.Column(db.DateTime, nullable=True)
-
-class Datasets(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    dataset_name = db.Column(db.String(255), nullable=False)
-    dataset_path = db.Column(db.String(255), nullable=False)
-
-with app.app_context():
-    db.create_all()
+if not os.path.exists(DATASETS_CSV):
+    pd.DataFrame(columns=['id', 'dataset_name', 'dataset_path']).to_csv(DATASETS_CSV, index=False)
 
 @app.route('/')
 def index():
-    yolki = Yolka.query.order_by(Yolka.id.desc()).all()
-    filenames = [os.path.basename(yolka.photo) for yolka in yolki]
-    non_empty_count = db.session.query(func.count(Yolka.txt)).filter(Yolka.txt.isnot(None), Yolka.txt != '').scalar()
+    yolki = pd.read_csv(YOLKA_CSV)
+    datasets = pd.read_csv(DATASETS_CSV)
 
-    datasets = Datasets.query.all()
+    non_empty_count = yolki['txt'].notnull().sum()
 
-    return render_template('index.html', yolki=yolki, filenames=filenames, non_empty_count=non_empty_count, datasets=datasets)
-
+    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'))
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
@@ -57,6 +38,8 @@ def upload_files():
         os.makedirs(images_dir)
 
     new_entries = []
+    image_files = set() 
+
     for file in files:
         if file.filename == '':
             return "No selected file", 400
@@ -68,6 +51,8 @@ def upload_files():
         try:
             file.save(file_path)
             print(f"Файл сохранен: {file_path}")
+            if file_extension != '.txt':
+                image_files.add(filename)
         except Exception as e:
             print(f"Ошибка при сохранении файла {filename}: {e}")
             return "Error saving file", 500
@@ -75,31 +60,65 @@ def upload_files():
     for file in files:
         filename = file.filename
         file_extension = os.path.splitext(filename)[1].lower()
-        relative_image_path = os.path.relpath(os.path.join(images_dir, filename), start=os.path.join(os.path.dirname(__file__), "static"))
-        relative_image_path = relative_image_path.replace("\\", "/")
-        txt_path = None
-        
+        relative_path = os.path.relpath(os.path.join(images_dir, filename), start=os.path.join(os.path.dirname(__file__), "static"))
+        relative_path = relative_path.replace("\\", "/")
+
         if file_extension != '.txt':
             txt_filename = os.path.splitext(filename)[0] + '.txt'
             txt_file_path = os.path.join(images_dir, txt_filename)
-            
+
             if os.path.exists(txt_file_path):
                 txt_path = os.path.relpath(txt_file_path, start=os.path.join(os.path.dirname(__file__), "static"))
                 txt_path = txt_path.replace("\\", "/")
-                print(f"Текстовый файл найден: {txt_path}")
+                new_entries.append({
+                    'photo': relative_path,
+                    'txt': txt_path,
+                    'photo_date': datetime.now()
+                })
             else:
-                print(f"Текстовый файл не найден: {txt_file_path}")
+                new_entries.append({
+                    'photo': relative_path,
+                    'txt': None, 
+                    'photo_date': datetime.now()
+                })
+                print(f"Текстовый файл не найден для изображения: {txt_file_path}")
 
-            new_entries.append(Yolka(photo=relative_image_path, txt=txt_path, photo_date=datetime.now()))
+        elif file_extension == '.txt':
+            image_filename = os.path.splitext(filename)[0] + '.jpg'
+            if image_filename in image_files:
+                corresponding_image_path = os.path.relpath(os.path.join(images_dir, image_filename), start=os.path.join(os.path.dirname(__file__), "static"))
+                corresponding_image_path = corresponding_image_path.replace("\\", "/")
+                new_entries.append({
+                    'photo': corresponding_image_path,
+                    'txt': relative_path, 
+                    'photo_date': datetime.now()
+                })
+            else:
+                print(f"Изображение для текстового файла не найдено: {image_filename}")
 
+    # Сохранение новых записей в CSV
     try:
-        db.session.bulk_save_objects(new_entries)
-        db.session.commit()
-        print("Записи успешно добавлены в базу данных.")
+        if os.path.exists(YOLKA_CSV):
+            yolki_df = pd.read_csv(YOLKA_CSV)
+        else:
+            yolki_df = pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date'])
+
+        new_entries_df = pd.DataFrame(new_entries)
+        yolki_df = pd.concat([yolki_df, new_entries_df], ignore_index=True)
+        yolki_df.drop_duplicates(subset=['photo', 'txt'], keep='last', inplace=True)  # Удаляем дубликаты по photo и txt
+
+        # Если поле 'id' уже существует, мы просто сбрасываем индекс
+        yolki_df.reset_index(drop=True, inplace=True)
+
+        # Обновляем поле id
+        yolki_df['id'] = range(1, len(yolki_df) + 1)  # Присваиваем id от 1 до n
+
+        # Сохраняем в CSV без изменения индексов
+        yolki_df.to_csv(YOLKA_CSV, index=False)  #
+        print("Записи успешно добавлены в CSV.")
     except Exception as e:
-        db.session.rollback()
-        print(f"Ошибка при сохранении в базу данных: {e}")
-        return "Error saving to database", 500
+        print(f"Ошибка при сохранении в CSV: {e}")
+        return "Error saving to CSV", 500
 
     return redirect(url_for('index'))
 
@@ -120,82 +139,53 @@ def copy_photos():
     if train_size + val_size != 1.0:
         return jsonify({"error": "Сумма train_size и val_size должна быть равна 1."}), 400
 
-    new_dataset = Datasets(dataset_name=dataset_name)
+    datasets_df = pd.read_csv(DATASETS_CSV)
+    new_dataset_id = len(datasets_df) + 1
+    new_dataset = {
+        'id': new_dataset_id,
+        'dataset_name': dataset_name,
+        'dataset_path': os.path.join(destination_folder, dataset_name)
+    }
 
-    yolo_folder = os.path.join(destination_folder, dataset_name) 
-    dataset_folder = os.path.join(yolo_folder, 'dataset')
+    dataset_folder = os.path.join(destination_folder, dataset_name)
+    os.makedirs(dataset_folder, exist_ok=True)
 
-    if os.path.exists(yolo_folder):
-        return jsonify({"exists": True, "message": "Папка с таким именем уже существует. Продолжить?"}), 409
+    yolki_df = pd.read_csv(YOLKA_CSV)
 
-    try:
-        os.makedirs(yolo_folder, exist_ok=True)
-        os.makedirs(dataset_folder, exist_ok=True)
-        os.makedirs(os.path.join(yolo_folder, 'train'), exist_ok=True)
-        os.makedirs(os.path.join(yolo_folder, 'val'), exist_ok=True)
-    except Exception as e:
-        return jsonify({"error": f"Не удалось создать папку: {str(e)}"}), 500
+    if num_photos is not None:
+        selected_photos = yolki_df.sample(n=num_photos, random_state=1)
+    else:
+        selected_photos = yolki_df
 
-    photos = Yolka.query.filter(Yolka.txt.isnot(None)).all()
-    print(f"Количество фотографий с текстом в базе данных: {len(photos)}")
-    
-    if not photos:
-        return jsonify({"error": "Нет фотографий с текстом в базе данных."}), 400
+    for _, row in selected_photos.iterrows():
+        photo_path = os.path.join(os.path.dirname(__file__), "static", row['photo'])
+        shutil.copy(photo_path, dataset_folder)
 
-    if num_photos > len(photos):
-        return jsonify({"error": "Недостаточно фотографий с текстом в базе данных."}), 400
+    train_photos, val_photos = train_test_split(selected_photos, train_size=train_size, random_state=1)
 
-    selected_photos = random.sample(photos, num_photos)
+    train_folder = os.path.join(dataset_folder, 'train')
+    val_folder = os.path.join(dataset_folder, 'val')
+    os.makedirs(train_folder, exist_ok=True)
+    os.makedirs(val_folder, exist_ok=True)
 
-    for photo in selected_photos:
-        photo_path = os.path.join('static', photo.photo)
-        print(f"Исходный путь к изображению: {photo_path}")
-        
-        destination_photo_path = os.path.join(dataset_folder, os.path.basename(photo.photo))  # Сохраняем в dataset
-        print(f"Путь к копируемому изображению: {destination_photo_path}")
-        
-        try:
-            if os.path.exists(photo_path):
-                shutil.copy(photo_path, destination_photo_path)
-            else:
-                print(f"Файл изображения не найден: {photo_path}")
-                return jsonify({"error": f"Файл изображения не найден: {photo_path}"}), 404
-        except Exception as e:
-            print(f"Ошибка при копировании файла {photo.photo}: {str(e)}")
-            return jsonify({"error": f"Ошибка при копировании файла {photo.photo}: {str(e)}"}), 500
+    for _, row in train_photos.iterrows():
+        photo_path = os.path.join(os.path.dirname(__file__), "static", row['photo'])
+        shutil.copy(photo_path, train_folder)
 
-        if photo.txt:
-            txt_path = os.path.join('static', photo.txt)
-            print(f"Исходный путь к текстовому файлу: {txt_path}")
-            
-            destination_txt_path = os.path.join(dataset_folder, os.path.basename(photo.txt))  # Сохраняем в dataset
-            print(f"Путь к копируемому текстовому файлу: {destination_txt_path}")
-            
-            try:
-                if os.path.exists(txt_path):
-                    shutil.copy(txt_path, destination_txt_path)
-                else:
-                    print(f"Текстовый файл не найден: {txt_path}")
-                    return jsonify({"error": f"Текстовый файл не найден: {txt_path}"}), 404
-            except Exception as e:
-                print(f"Ошибка при копировании текстового файла {photo.txt}: {str(e)}")
-                return jsonify({"error": f"Ошибка при копировании текстового файла {photo.txt}: {str(e)}"}), 500
+    for _, row in val_photos.iterrows():
+        photo_path = os.path.join(os.path.dirname(__file__), "static", row['photo'])
+        shutil.copy(photo_path, val_folder)
 
-    split_and_save_dataset(dataset_folder, yolo_folder, test_size=val_size)
-    
-    new_dataset.dataset_path = yolo_folder
-    try:
-        db.session.add(new_dataset)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback() 
-        return jsonify({"error": f"Не удалось сохранить датасет в базе данных: {str(e)}"}), 500
+    datasets_df = pd.read_csv(DATASETS_CSV)
+    new_dataset_df = pd.DataFrame([new_dataset])
+    datasets_df = pd.concat([datasets_df, new_dataset_df], ignore_index=True)
+    datasets_df.to_csv(DATASETS_CSV, index=False)
 
     return redirect(url_for('index'))
 
 def split_and_save_dataset(source_folder, destination_folder, test_size):
     all_files = os.listdir(source_folder)
-    
+
     images = [f for f in all_files if f.endswith(('.jpg', '.jpeg', '.png'))]
     texts = [f for f in all_files if f.endswith('.txt')]
 
@@ -228,13 +218,8 @@ def create_class():
     selected_dataset = request.form.get('selected_dataset')
     class_name = request.form.get('class_name')
 
-    print(f"Выбранный датасет: {selected_dataset}")
-    print(f"Имя класса: {class_name}") 
-
     if selected_dataset and class_name:
         dataset_folder = selected_dataset 
-        print(f"Папка датасета: {dataset_folder}")
-
         classes_file_path = os.path.join(dataset_folder, 'classes.txt')
         data_yaml_path = os.path.join(dataset_folder, 'data.yaml')
 
@@ -311,34 +296,5 @@ if __name__ == "__main__":
 
     return redirect(url_for('index'))
 
-@app.route('/train', methods=['POST'])
-def train():
-    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-    data_yaml_path = os.path.abspath(os.path.join(os.getcwd(), 'yolo', 'data.yaml'))
-    save_dir = os.path.abspath(os.path.join(os.getcwd(), 'yolo'))
-    try:
-        imgsz = int(request.form['imgsz'])
-        epochs = int(request.form['epochs'])
-        batch = int(request.form['batch'])
-        save_period = int(request.form['save_period'])
-        
-        model = YOLO('yolo11n.pt')
-        results = model.train(
-            data=data_yaml_path,
-            imgsz=imgsz,
-            epochs=epochs,
-            batch=batch,
-            save_period=save_period,
-            project=save_dir,
-            name='runs'
-        )
-        flash('Обучение завершено успешно!', 'success')
-    except Exception as e:
-        flash(f'Ошибка при обучении: {e}', 'error')
-    
-    return redirect(url_for('index'))
-
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

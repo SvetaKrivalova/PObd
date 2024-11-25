@@ -51,10 +51,8 @@ function updateImage() {
     var selectedFilePath = select.value;
     document.getElementById("selectedFileName").innerText = selectedFileName;
     var img = document.getElementById("fileImage");
-    img.src = '/static/' + selectedFilePath;
+    img.src = "/static/" + selectedFilePath;
 }
-
-
 
 function filterFiles() {
     const showAnnotated = document.getElementById('showAnnotated').checked;
@@ -65,7 +63,7 @@ function filterFiles() {
         const txtValue = option.getAttribute('data-txt');
         
         if (showAnnotated) {
-            if (txtValue !== 'None') {
+            if (txtValue !== 'nan') {
                 option.style.display = '';
             } else {
                 option.style.display = 'none';
@@ -75,6 +73,10 @@ function filterFiles() {
         }
     }
 }
+
+window.onload = function() {
+    filterFiles();
+};
 
 function updateFileLabel(files) {
     const fileNames = Array.from(files).map(file => file.name).join(', ');
