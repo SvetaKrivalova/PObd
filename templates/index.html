@@ -10,67 +10,85 @@
     <title>PO</title>
 </head>
 <body>
-    <h1>Блок обзор файлов</h1> 
-        <main>
 
-        <button onclick="openLoadingScreen()" class="btnDownload"> Загрузить</button>
+    <header>
 
-        <div class="overlay" onclick="closeLoadingScreen()"></div>
-        <div class="LoadingScreen">
-            <div class="VerhLoadingScreen">
-                <h3>Загрузка файлов</h3>
-                <button class="close-x" onclick="closeLoadingScreen()"></button>
-            </div>
-          
-            <div class="listFiles">
-                <span class="file" id="file-label"></span>
-            </div>
-            
-            <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-                <label class="file-btn" for="showUploadForm">Выбрать файлы</label>
-                
-                <button class="downloadBtn2" type="submit">Загрузить</button>
-                <input id="showUploadForm" name="files" multiple class="custom-file-input" type="file" accept=".jpg, .jpeg, .png, .txt" onchange="updateFileLabel(this.files)">
-            </form>
-        </div>
-
-        <div class="inputsval1">
-            <label class="inputsval">
-                <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
-                Только с разметкой
-              </label>
-              <br>
-              <label class="inputsval">
-                <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()" disabled>
-                Только с валидацией
-              </label>
-        </div>
-
-
-        <div class="viewFiles">
-    
-            <div class="listFiles">
-                <label class="fileList" for="file">Список файлов</label>
-                <select size="20" id="fruits" name="fruits" onchange="updateImage()">
-                    {% for yolka in yolki %}
-                        <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="thatFile">
-                Файл: <span id="selectedFileName"></span><br>
-                <img id="fileImage" src="" width="400" height="400"><br>
-
-                <!-- <div class="validation">
-                    <p>Валидация:</p>
-                    дата имя результат<br>
-                </div> -->
-            </div>
-        </div>
-        </main>
+        ГРАФИЧЕСКИЙ ЧТО-ТО ТАМ
         
-        <div class="blocTwo">
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'OneBlock')" id="defaultOpen">Обзор файлов</button>
+            <button class="tablinks" onclick="openTab(event, 'TwoBlock')">Создание выборки</button>
+            <button class="tablinks" onclick="openTab(event, 'ThreeBlock')">Валидация</button>
+        </div>
+        
+       ИМЯ ПОЛЬЗОВАТЕЛЯ
+
+    </header>
+
+
+        <div id="OneBlock" class="tabcontent active">
+            <main >
+                    <h1>Блок обзор файлов</h1> 
+                    <button onclick="openLoadingScreen()" class="btnDownload"> Загрузить</button>
+
+                    <div class="overlay" onclick="closeLoadingScreen()"></div>
+                    <div class="LoadingScreen">
+                        <div class="VerhLoadingScreen">
+                            <h3>Загрузка файлов</h3>
+                            <button class="close-x" onclick="closeLoadingScreen()"></button>
+                        </div>
+                    
+                        <div class="listFiles">
+                            <span class="file" id="file-label"></span>
+                        </div>
+                        
+                        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                            <label class="file-btn" for="showUploadForm">Выбрать файлы</label>
+                            
+                            <button class="downloadBtn2" type="submit">Загрузить</button>
+                            <input id="showUploadForm" name="files" multiple class="custom-file-input" type="file" accept=".jpg, .jpeg, .png, .txt" onchange="updateFileLabel(this.files)">
+                        </form>
+                    </div>
+
+                    <div class="inputsval1">
+                        <label class="inputsval">
+                            <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
+                            Только с разметкой
+                        </label>
+                        <br>
+                        <label class="inputsval">
+                            <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()" disabled>
+                            Только с валидацией
+                        </label>
+                    </div>
+
+
+                    <div class="viewFiles">
+                
+                        <div class="listFiles">
+                            <label class="fileList" for="file">Список файлов</label>
+                            <select size="20" id="fruits" name="fruits" onchange="updateImage()">
+                                {% for yolka in yolki %}
+                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="thatFile">
+                            Файл: <span id="selectedFileName"></span><br>
+                            <img id="fileImage" src="" width="400" height="400"><br>
+
+                            <!-- <div class="validation">
+                                <p>Валидация:</p>
+                                дата имя результат<br>
+                            </div> -->
+                        </div>
+                    </div>
+            </main>
+        </div>
+        
+        
+        <div id="TwoBlock" class="tabcontent">
             <h1>Блок создание выборки для обучения</h1>
 
 
@@ -215,5 +233,51 @@
                 </form>
             </div> -->
         </div>
+
+        <div id="ThreeBlock" class="tabcontent">
+
+            <div class="viewFiles">
+        
+                <div class="listFiles">
+                    <label class="fileList" for="file">Список файлов</label>
+                    <select size="20" id="fruits" name="fruits" onchange="updateImage()">
+                        {% for yolka in yolki %}
+                            <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ filenames[loop.index0] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="thatFile">
+                    Файл: <span id="selectedFileName"></span><br>
+                    <img id="fileImage" src="" width="400" height="400"><br>
+
+                   
+                </div>
+
+                <div>
+                    <button>Пока фейл, далее</button>
+                    <button>Норм, далее</button>
+                    <button>Не знаю зачем, но ЗАКОНЧИТЬ ПРОЦЕСС</button>
+                </div>
+            </div>
+
+            <div class="inputsval1">
+                <label class="inputsval">
+                    <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
+                    Без валидации
+                </label>
+                <br>
+                <label class="inputsval">
+                    <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()">
+                    Валидация меньше 3 чел
+                </label>
+                <label class="inputsval">
+                    <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()">
+                    Валидация меньше 5 чел
+                </label>
+            </div>
+            
+        </div>
+
 </body>
 </html>
