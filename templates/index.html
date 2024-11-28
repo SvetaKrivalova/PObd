@@ -19,11 +19,26 @@
             <button class="tablinks" onclick="openTab(event, 'OneBlock')" id="defaultOpen">Обзор файлов</button>
             <button class="tablinks" onclick="openTab(event, 'TwoBlock')">Создание выборки</button>
             <button class="tablinks" onclick="openTab(event, 'ThreeBlock')">Валидация</button>
+            <button class="tablinks" onclick="openTab(event, 'AutoBlock')" id="userName">ИМЯ ПОЛЬЗОВАТЕЛЯ</button>
         </div>
-        
-       ИМЯ ПОЛЬЗОВАТЕЛЯ
 
     </header>
+
+        <div id="AutoBlock" class="tabcontent">
+            <h3>Создание выборки</h3>
+            <form id="userForm">
+                <label for="userSelect">Выберите пользователя:</label>
+                <select id="userSelect">
+                    {% for user in users %}
+                        <option value="{{ user.name }}">{{ user.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" onclick="updateUserName()">ОК</button>
+                <br><br>
+                <input type="text" id="newUserName" placeholder="Введите новое имя">
+                <button type="button" onclick="addUser()">Добавить</button>
+            </form>
+        </div>
 
 
         <div id="OneBlock" class="tabcontent active">
@@ -206,7 +221,7 @@
 
         <div id="ThreeBlock" class="tabcontent">
 
-            <form action="{{ url_for('record_result') }}" method="POST">
+            <form id="resultForm" action="{{ url_for('record_result') }}" method="POST">
                 <div class="viewFiles">
                     <div class="listFiles">
                         <label class="fileList" for="file">Список файлов</label>
@@ -221,7 +236,7 @@
                         Файл: <span id="selectedFileNameV"></span><br>
                         <img id="fileImageV" src="" width="400" height="400" alt="Изображение"><br>
                     </div>
-                
+                    
                     <div>
                         <button type="button" onclick="recordResult(1)">Да</button>
                         <button type="button" onclick="recordResult(0)">Нет</button>

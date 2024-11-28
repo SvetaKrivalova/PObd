@@ -188,7 +188,7 @@ const trainInput = document.getElementById('trainSize');
 
 $(document).ready(function() {
     $('#photoForm').on('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
 
         $.ajax({
             type: 'POST',
@@ -196,17 +196,14 @@ $(document).ready(function() {
             data: $(this).serialize(),
             success: function(response) {
                 if (response.exists) {
-                    // Display the message in an alert box
                     alert(response.message);
-                    // Ask the user to confirm
                     if (confirm("Продолжить?")) {
-                        // If the user confirms, send the form again
                         $.ajax({
                             type: 'POST',
-                            url: '/copy_photos', // Same handler
+                            url: '/copy_photos', 
                             data: $(this).serialize(),
                             success: function() {
-                                window.location.href = '/'; // Redirect to the main page
+                                window.location.href = '/';
                             },
                             error: function(err) {
                                 alert('Ошибка: ' + err.responseJSON.error);
@@ -214,8 +211,7 @@ $(document).ready(function() {
                         });
                     }
                 } else {
-                    // If the folder doesn't exist, continue with the copy operation
-                    window.location.href = '/'; // Redirect to the main page
+                    window.location.href = '/';
                 }
             },
             error: function(err) {
@@ -233,65 +229,110 @@ function updateFileCount() {
     console.log(`Количество выбранных файлов: ${count}`);
 }
 
+function updateImage(selectId, imageId, fileNameId) {
+    const selectElement = document.getElementById(selectId);
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const imageElement = document.getElementById(imageId);
+    const fileNameElement = document.getElementById(fileNameId);
 
+    imageElement.src = "/static/" + selectedOption.value; 
+    fileNameElement.textContent = "/static/" + selectedOption.dataset.txt;
+}
 
-let currentIndex = 0; // Индекс текущего файла
-        const selectElement = document.getElementById("fruitsV");
+function recordResult(result) {
+    const userNameButton = document.getElementById('userName');
+    const currentUserName = userNameButton.textContent;
 
-        // Функция для обновления изображения
-        function updateImage(selectId, imgId, textId) {
-            var select = document.getElementById(selectId);
-            var selectedFileName = select.options[select.selectedIndex].text; 
-            var selectedFilePath = select.value; 
-            document.getElementById(textId).innerText = selectedFileName;
-            var img = document.getElementById(imgId);
-            img.src = "/static/" + selectedFilePath;
-            img.style.display = "block"; // Показываем изображение
-        }
+    if (currentUserName === 'ИМЯ ПОЛЬЗОВАТЕЛЯ') {
+        alert('Зайдите в аккаунт'); 
+    } else {
+        const selectElement = document.getElementById('fruitsV');
+        const selectedPhoto = selectElement.value;
 
-        // Функция для записи результата
-        function recordResult(result) {
-            const selectedOption = selectElement.options[selectElement.selectedIndex];
-            const fileName = selectedOption.value; // Получаем имя файла
-            const date = new Date().toISOString(); // Получаем текущую дату в формате ISO
+        const formData = new FormData();
+        formData.append('fruits', selectedPhoto);
+        formData.append('result', result);
+        formData.append('username', currentUserName);
 
-            fetch('/record_result', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user: 'Я',
-                    file: fileName,
-                    date: date,
-                    result: result
-                })
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Переходим к следующему файлу
-                    currentIndex++;
-                    if (currentIndex < selectElement.options.length) {
-                        selectElement.selectedIndex = currentIndex; // Устанавливаем следующий файл
-                        updateImage('fruitsV', 'fileImageV', 'selectedFileNameV'); // Обновляем изображение
-                    } else {
-                        alert('Обработка завершена!');
-                        // Можно добавить логику для завершения
-                    }
+        fetch('/record_result', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                if (selectElement.selectedIndex < selectElement.options.length - 1) {
+                    selectElement.selectedIndex += 1;
+                    updateImage('fruitsV', 'fileImageV', 'selectedFileNameV'); 
                 } else {
-                    alert('Ошибка при записи результата.');
+                    alert("Это последняя фотография.");
                 }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-            });
-        }
+            } else {
+                console.error("Ошибка при отправке данных.");
+            }
+        })
+        .catch(error => {
+            console.error("Произошла ошибка:", error);
+        });
+    }
+}
 
-        // Функция для завершения процесса
-        function endProcess() {
-            alert('Процесс завершен!');
-            // Здесь можно добавить логику для завершения, например, перенаправление или очистку данных
-        }
+function endProcess() {
+    const userNameButton = document.getElementById('userName');
+    const currentUserName = userNameButton.textContent;
 
-        // Инициализация первой фотографии
-        updateImage('fruitsV', 'fileImageV', 'selectedFileNameV');
+    if (currentUserName === 'ИМЯ ПОЛЬЗОВАТЕЛЯ') {
+        alert('Зайдите в аккаунт'); 
+    } else {
+        document.getElementById('userName').textContent = 'ИМЯ ПОЛЬЗОВАТЕЛЯ';
+    }
+}
+
+window.onload = function() {
+    updateImage('fruitsV', 'fileImageV', 'selectedFileNameV');
+};
+
+async function loadUsers() {
+    const response = await fetch('/get_users');
+    const users = await response.json();
+    const userSelect = document.getElementById('userSelect');
+    userSelect.innerHTML = '';
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user;
+        option.textContent = user;
+        userSelect.appendChild(option);
+    });
+}
+
+function updateUserName() {
+    const userSelect = document.getElementById('userSelect');
+    const selectedUser  = userSelect.value;
+    document.getElementById('userName').textContent = selectedUser ;
+}
+
+async function addUser () {
+    const newUserName = document.getElementById('newUserName').value;
+    if (newUserName) {
+        const response = await fetch('/add_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: newUserName })
+        });
+        if (response.ok) {
+            loadUsers(); 
+            document.getElementById('newUserName').value = '';
+        } else {
+            alert('Ошибка при добавлении пользователя.');
+        }
+    } else {
+        alert('Введите имя пользователя.');
+    }
+}
+
+document.getElementById('addUser').addEventListener('click', addUser );
+
+document.addEventListener('DOMContentLoaded', loadUsers)
+
+window.onload = loadUsers;

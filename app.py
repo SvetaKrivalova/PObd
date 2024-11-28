@@ -13,6 +13,10 @@ app.secret_key = os.urandom(24)
 YOLKA_CSV = 'yolka_data.csv'
 DATASETS_CSV = 'datasets_data.csv'
 VAL_CSV = 'val_data.csv'
+USER_CSV = 'users.csv'
+
+if not os.path.exists(USER_CSV):
+    pd.DataFrame(columns=['id', 'name']).to_csv(USER_CSV, index=False)
 
 if not os.path.exists(YOLKA_CSV):
     pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date']).to_csv(YOLKA_CSV, index=False)
@@ -23,14 +27,39 @@ if not os.path.exists(DATASETS_CSV):
 if not os.path.exists(VAL_CSV):
     pd.DataFrame(columns=['id', 'user', 'photo', 'val_date', 'result']).to_csv(VAL_CSV, index=False)
 
+
+def add_user(name):
+    df = pd.read_csv(USER_CSV)
+    new_id = df['id'].max() + 1 if not df.empty else 1 
+    new_user = pd.DataFrame({'id': [new_id], 'name': [name]})
+    new_user.to_csv(USER_CSV, mode='a', header=False, index=False) 
+
+
+@app.route('/add_user', methods=['POST'])
+def add_user_route():
+    data = request.get_json()
+    name = data.get('name')
+    if name:
+        add_user(name)
+        return redirect(url_for('index'))
+    return '', 400 
+
+@app.route('/get_users', methods=['GET'])
+def get_users():
+    df = pd.read_csv(USER_CSV)
+    users = df['name'].tolist()  # Получаем список пользователей
+    return jsonify(users)  # Возвращаем список в формате JSON
+
+
 @app.route('/')
 def index():
     yolki = pd.read_csv(YOLKA_CSV)
     datasets = pd.read_csv(DATASETS_CSV)
+    users = pd.read_csv(USER_CSV)
 
     non_empty_count = yolki['txt'].notnull().sum()
 
-    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'))
+    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'), users=users.to_dict(orient='records'))
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
@@ -298,32 +327,42 @@ if __name__ == "__main__":
 
 @app.route('/record_result', methods=['POST'])
 def record_result():
-    data = request.get_json()
-
-    # Проверяем, что все необходимые данные присутствуют
-    if not all(key in data for key in ['user', 'file', 'date', 'result']):
-        return jsonify({'error': 'Missing data'}), 400
-
-    user = data['user']
-    file_name = data['file']
-    date = data['date']
-    result = data['result']
+    print(request.form)
     
-    # Генерируем уникальный id
-    unique_id = str(uuid.uuid4())  # Используем UUID для уникального идентификатора
-    
-    # Записываем данные в CSV
-    file_exists = os.path.isfile(VAL_CSV)
-    with open(VAL_CSV, mode='a', newline='') as csv_file:
-        fieldnames = ['id', 'user', 'photo', 'val_date', 'result']
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    # Получаем данные из формы
+    selected_photo = request.form.get('fruits')
+    result = request.form.get('result') 
+    username = request.form.get('username')
+    val_date = pd.Timestamp.now()
 
-        # Проверяем, существует ли файл, чтобы записать заголовки только если файл новый
-        if not file_exists or csv_file.tell() == 0:  # Проверяем, пуст ли файл
-            writer.writeheader()  # Записываем заголовки
-        writer.writerow({'id': unique_id, 'user': user, 'photo': file_name, 'val_date': date, 'result': result})
+    # Проверяем наличие необходимых данных
+    if selected_photo is None or result is None or username is None:
+        print("Данные не получены.")
+        return '', 400  # Возвращаем ошибку 400 при отсутствии данных
 
-    return redirect(url_for('index'))
+    print(f"Получено фото: {selected_photo}, результат: {result}, пользователь: {username}")
+
+    # Инициализируем переменную для хранения существующих данных
+    existing_data = None
+
+    # Загружаем существующий CSV, если он существует, и определяем следующий индекс
+    try:
+        existing_data = pd.read_csv(VAL_CSV)
+        if 'id' in existing_data.columns and not existing_data['id'].isnull().all():
+            next_index = existing_data['id'].max() + 1  # Индекс следующей записи
+        else:
+            next_index = 1  # Если столбец пустой или не существует, начинаем с 1
+    except (FileNotFoundError, ValueError):
+        next_index = 1  # Если файл не найден или пуст, начинаем с 1
+
+    # Создаем новую запись
+    new_entry = pd.DataFrame([[next_index, username, selected_photo, val_date, result]], 
+                             columns=['id', 'user', 'photo', 'val_date', 'result'])
+
+    # Сохраняем новую запись в CSV
+    new_entry.to_csv(VAL_CSV, mode='a', header=(existing_data is None), index=False)
+
+    return '', 204 
 
 if __name__ == '__main__':
     app.run(debug=True)
