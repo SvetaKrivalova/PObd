@@ -67,29 +67,31 @@
 
                     <div class="inputsval1">
                         <label class="inputsval">
-                            <input type="checkbox" id="showAnnotated" onclick="filterFiles()">
+                            <input type="radio" name="show" id="All" checked onclick="filterFiles()">
+                            Все фото
+                        </label>
+                        <label class="inputsval">
+                            <input type="radio" name="show" id="showAnnotated" onclick="filterFiles()">
                             Только с разметкой
                         </label>
-                        <br>
                         <label class="inputsval">
-                            <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()" disabled>
+                            <input type="radio" name="show" id="showValidated" value="val" onchange="filterFiles()">
                             Только с валидацией
                         </label>
                     </div>
-
 
                     <div class="viewFiles">
                         <div class="listFiles">
                             <label class="fileList" for="file">Список файлов</label>
                             <select size="20" id="fruits" name="fruits" onchange="updateImage('fruits', 'fileImage', 'selectedFileName')">
                                 {% for yolka in yolki %}
-                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ yolka.photo }} </option>
+                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result}}">{{ yolka.photo }} </option>
                                 {% endfor %}
                             </select>
                         </div>
                     
                         <div class="thatFile">
-                            Файл: <span id="selectedFileName"></span><br>
+                            Файл: <br>
                             <img id="fileImage" src="" width="400" height="400" alt="Изображение"><br>
                         </div>
                     </div>
@@ -185,38 +187,6 @@
 
                 <button type="submit">Создать train.py</button>
             </form>
-                    
-
-            <!-- <button onclick="openScript()" class="" >Создание скрипта </button>
-
-
-            <div class="overlayForScript" onclick="closeScript()"></div>
-            <div class="Script">
-                <div class="VerhLoadingScreen">
-                    <h3>Создание скрипта</h3>
-                    <button class="close-x" onclick="closeScript()"></button>
-                </div>
-
-                    
-            </div> -->
-          
-
-
-          
-            
-
-            <!-- {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <script>
-                        var flashMessages = [
-                            {% for category, message in messages %}
-                                { "category": "{{ category }}", "message": "{{ message }}" }{% if not loop.last %}, {% endif %}
-                            {% endfor %}
-                        ];
-                        handleFlashMessages(flashMessages);
-                    </script>
-                {% endif %}
-            {% endwith %} -->
         </div>
 
         <div id="ThreeBlock" class="tabcontent">
@@ -227,13 +197,13 @@
                         <label class="fileList" for="file">Список файлов</label>
                         <select size="20" id="fruitsV" name="fruits" onchange="updateImage('fruitsV', 'fileImageV', 'selectedFileNameV')">
                             {% for yolka in yolki %}
-                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ yolka.photo }}</option>
+                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{yolka.val_result}}">{{ yolka.photo }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     
                     <div class="thatFile">
-                        Файл: <span id="selectedFileNameV"></span><br>
+                        Файл: <br>
                         <img id="fileImageV" src="" width="400" height="400" alt="Изображение"><br>
                     </div>
                     
@@ -247,17 +217,20 @@
 
             <div class="inputsval1">
                 <label class="inputsval">
-                    <input type="checkbox" id="showAnnotated" value="txt" onchange="filterFiles()">
+                    <input type="radio" name="validation" id="AllVal" checked onchange="filterFilesV()">
+                    Все фото
+                </label>
+                <label class="inputsval">
+                    <input type="radio" name="validation" id="showVal" onchange="filterFilesV()">
                     Без валидации
                 </label>
-                <br>
                 <label class="inputsval">
-                    <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()">
-                    Валидация меньше 3 чел
+                    <input type="radio" name="validation" id="showValidatedPositive" onchange="filterFilesV()">
+                    Валидация положительная
                 </label>
                 <label class="inputsval">
-                    <input type="checkbox" id="showValidated" value="val" onchange="filterFiles()">
-                    Валидация меньше 5 чел
+                    <input type="radio" name="validation" id="showValidatedNegative" onchange="filterFilesV()">
+                    Валидация отрицательная
                 </label>
             </div>
             

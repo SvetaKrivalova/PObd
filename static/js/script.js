@@ -49,14 +49,56 @@ document.getElementById('showUploadForm').addEventListener('click', function() {
 
 function filterFiles() {
     const showAnnotated = document.getElementById('showAnnotated').checked;
+    const showValidated = document.getElementById('showValidated').checked;
     const select = document.getElementById('fruits');
     
     for (let i = 0; i < select.options.length; i++) {
         const option = select.options[i];
         const txtValue = option.getAttribute('data-txt');
+        const valValue = option.getAttribute('data-val');
         
         if (showAnnotated) {
             if (txtValue !== 'nan') {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+        } else if (showValidated) {
+            if (valValue !== 'nan') {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+        } else {
+            option.style.display = '';
+        }
+    }
+}
+
+function filterFilesV() {
+    const showVal = document.getElementById('showVal').checked;
+    const showValidatedPositive = document.getElementById('showValidatedPositive').checked;
+    const showValidatedNegative = document.getElementById('showValidatedNegative').checked;
+    const select = document.getElementById('fruitsV');
+    
+    for (let i = 0; i < select.options.length; i++) {
+        const option = select.options[i];
+        const valValue = option.getAttribute('data-val');
+        
+        if (showVal) {
+            if (valValue === 'nan') {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+        } else if (showValidatedPositive) {
+            if (valValue === '1.0') {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+        } else if (showValidatedNegative) {
+            if (valValue === '0.0') {
                 option.style.display = '';
             } else {
                 option.style.display = 'none';
@@ -69,7 +111,9 @@ function filterFiles() {
 
 window.onload = function() {
     filterFiles();
+    filterFilesV()
 };
+
 
 function updateFileLabel(files) {
     const fileNames = Array.from(files).map(file => file.name).join(', ');
@@ -248,6 +292,11 @@ function recordResult(result) {
     } else {
         const selectElement = document.getElementById('fruitsV');
         const selectedPhoto = selectElement.value;
+
+        if (!selectedPhoto) {
+            alert('Пожалуйста, выберите фотографию.');
+            return;
+        }
 
         const formData = new FormData();
         formData.append('fruits', selectedPhoto);

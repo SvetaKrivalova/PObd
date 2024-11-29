@@ -19,7 +19,7 @@ if not os.path.exists(USER_CSV):
     pd.DataFrame(columns=['id', 'name']).to_csv(USER_CSV, index=False)
 
 if not os.path.exists(YOLKA_CSV):
-    pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date']).to_csv(YOLKA_CSV, index=False)
+    pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result']).to_csv(YOLKA_CSV, index=False)
 
 if not os.path.exists(DATASETS_CSV):
     pd.DataFrame(columns=['id', 'dataset_name', 'dataset_path']).to_csv(DATASETS_CSV, index=False)
@@ -47,19 +47,18 @@ def add_user_route():
 @app.route('/get_users', methods=['GET'])
 def get_users():
     df = pd.read_csv(USER_CSV)
-    users = df['name'].tolist()  # Получаем список пользователей
-    return jsonify(users)  # Возвращаем список в формате JSON
-
+    users = df['name'].tolist() 
+    return jsonify(users) 
 
 @app.route('/')
 def index():
     yolki = pd.read_csv(YOLKA_CSV)
     datasets = pd.read_csv(DATASETS_CSV)
     users = pd.read_csv(USER_CSV)
-
+    vals = pd.read_csv(VAL_CSV)
     non_empty_count = yolki['txt'].notnull().sum()
 
-    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'), users=users.to_dict(orient='records'))
+    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'), users=users.to_dict(orient='records'), vals=vals.to_dict(orient='records'))
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
@@ -329,37 +328,41 @@ if __name__ == "__main__":
 def record_result():
     print(request.form)
     
-    # Получаем данные из формы
     selected_photo = request.form.get('fruits')
-    result = request.form.get('result') 
+    result = int(request.form.get('result'))
     username = request.form.get('username')
     val_date = pd.Timestamp.now()
 
-    # Проверяем наличие необходимых данных
     if selected_photo is None or result is None or username is None:
         print("Данные не получены.")
-        return '', 400  # Возвращаем ошибку 400 при отсутствии данных
+        return '', 400 
 
     print(f"Получено фото: {selected_photo}, результат: {result}, пользователь: {username}")
 
-    # Инициализируем переменную для хранения существующих данных
-    existing_data = None
+    yolka_data = pd.read_csv(YOLKA_CSV)
+    if selected_photo in yolka_data['photo'].values:
+        yolka_data.loc[yolka_data['photo'] == selected_photo, 'val_result'] = int(result)
+        yolka_data.loc[yolka_data['photo'] == selected_photo, 'photo_date'] = val_date
+    else:
+        next_index = yolka_data['id'].max() + 1 if not yolka_data.empty else 1
+        new_entry = pd.DataFrame([[next_index, selected_photo, '', val_date, int(result)]], 
+                                 columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
+        yolka_data = yolka_data.append(new_entry, ignore_index=True)
 
-    # Загружаем существующий CSV, если он существует, и определяем следующий индекс
+    yolka_data.to_csv(YOLKA_CSV, index=False)
+
+    existing_data = None
+    next_index = 1
     try:
         existing_data = pd.read_csv(VAL_CSV)
         if 'id' in existing_data.columns and not existing_data['id'].isnull().all():
-            next_index = existing_data['id'].max() + 1  # Индекс следующей записи
-        else:
-            next_index = 1  # Если столбец пустой или не существует, начинаем с 1
+            next_index = existing_data['id'].max() + 1 
     except (FileNotFoundError, ValueError):
-        next_index = 1  # Если файл не найден или пуст, начинаем с 1
+        next_index = 1 
 
-    # Создаем новую запись
     new_entry = pd.DataFrame([[next_index, username, selected_photo, val_date, result]], 
                              columns=['id', 'user', 'photo', 'val_date', 'result'])
 
-    # Сохраняем новую запись в CSV
     new_entry.to_csv(VAL_CSV, mode='a', header=(existing_data is None), index=False)
 
     return '', 204 
