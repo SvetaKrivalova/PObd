@@ -85,14 +85,14 @@
                             <label class="fileList" for="file">Список файлов</label>
                             <select size="20" id="fruits" name="fruits" onchange="updateImage('fruits', 'fileImage', 'selectedFileName')">
                                 {% for yolka in yolki %}
-                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result}}">{{ yolka.photo }} </option>
+                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ yolka.photo }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     
                         <div class="thatFile">
-                            Файл: <br>
-                            <img id="fileImage" src="" width="400" height="400" alt="Изображение"><br>
+                            Файл: <span id="selectedFileName"></span><br>
+                            <canvas id="fileImage" width="400" height="400" style="border:1px solid #000;"></canvas><br>
                         </div>
                     </div>
             </main>
@@ -197,16 +197,16 @@
                         <label class="fileList" for="file">Список файлов</label>
                         <select size="20" id="fruitsV" name="fruits" onchange="updateImage('fruitsV', 'fileImageV', 'selectedFileNameV')">
                             {% for yolka in yolki %}
-                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{yolka.val_result}}">{{ yolka.photo }}</option>
+                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ yolka.photo }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    
+                
                     <div class="thatFile">
-                        Файл: <br>
-                        <img id="fileImageV" src="" width="400" height="400" alt="Изображение"><br>
+                        Файл: <span id="selectedFileNameV"></span><br>
+                        <canvas id="fileImageV" width="400" height="400" style="border:1px solid #000;"></canvas><br>
                     </div>
-                    
+                
                     <div>
                         <button type="button" onclick="recordResult(1)">Да</button>
                         <button type="button" onclick="recordResult(0)">Нет</button>

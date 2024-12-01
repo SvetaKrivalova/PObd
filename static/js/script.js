@@ -114,11 +114,10 @@ window.onload = function() {
     filterFilesV()
 };
 
-
 function updateFileLabel(files) {
+    const fileLabel = document.getElementById('file-label');
     const fileNames = Array.from(files).map(file => file.name).join(', ');
-    const label = document.querySelector('.selectFolderBtn-btn');
-    label.textContent = fileNames.length > 0 ? `Выбрано файлов: ${fileNames}` : 'Выбрать папку';
+    fileLabel.textContent = fileNames;
 }
 
 document.getElementById('photoForm').onsubmit = function(event) {
@@ -273,14 +272,59 @@ function updateFileCount() {
     console.log(`Количество выбранных файлов: ${count}`);
 }
 
-function updateImage(selectId, imageId, fileNameId) {
+function updateImage(selectId, canvasId, fileNameId) {
     const selectElement = document.getElementById(selectId);
     const selectedOption = selectElement.options[selectElement.selectedIndex];
-    const imageElement = document.getElementById(imageId);
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
     const fileNameElement = document.getElementById(fileNameId);
 
-    imageElement.src = "/static/" + selectedOption.value; 
     fileNameElement.textContent = "/static/" + selectedOption.dataset.txt;
+
+    const img = new Image();
+    img.src = "/static/" + selectedOption.value; 
+    img.onload = function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        loadCoordinates(selectedOption.dataset.txt, ctx, canvas.width, canvas.height);
+    };
+
+    img.onerror = function() {
+        console.error('Ошибка загрузки изображения:', img.src);
+        fileNameElement.textContent = "Ошибка загрузки изображения.";
+    };
+}
+
+function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
+    fetch("/static/" + txtFileName) 
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка загрузки текстового файла: ' + response.statusText);
+            }
+            return response.text();
+        })
+        .then(data => {
+            const lines = data.split('\n');
+            lines.forEach(line => {
+                const values = line.split(' ').map(Number);
+                if (values.length === 5) {
+                    const [index, x, y, w, h] = values;
+
+                    const X = x * canvasWidth;
+                    const Y = y * canvasHeight;
+                    const W = w * canvasWidth;
+                    const H = h * canvasHeight;
+
+                    ctx.strokeStyle = 'red'; 
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(X,Y,W, H);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+        });
 }
 
 function recordResult(result) {
@@ -385,3 +429,4 @@ document.getElementById('addUser').addEventListener('click', addUser );
 document.addEventListener('DOMContentLoaded', loadUsers)
 
 window.onload = loadUsers;
+

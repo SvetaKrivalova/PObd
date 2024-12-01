@@ -176,34 +176,30 @@ def copy_photos():
         'dataset_path': os.path.join(destination_folder, dataset_name)
     }
 
-    dataset_folder = os.path.join(destination_folder, dataset_name)
+    dataset_folder_a = os.path.join(destination_folder, dataset_name)
+    dataset_folder = os.path.join(destination_folder, dataset_name, "dataset")
+    os.makedirs(dataset_folder_a, exist_ok=True)
     os.makedirs(dataset_folder, exist_ok=True)
 
     yolki_df = pd.read_csv(YOLKA_CSV)
 
+    yolki_df['txt_exists'] = yolki_df['photo'].apply(lambda x: os.path.exists(os.path.join(os.path.dirname(__file__), "static", os.path.splitext(x)[0] + '.txt')))
+    yolki_df_filtered = yolki_df[yolki_df['txt_exists']]
+
     if num_photos is not None:
-        selected_photos = yolki_df.sample(n=num_photos, random_state=1)
+        selected_photos = yolki_df_filtered.sample(n=num_photos, random_state=1)
     else:
-        selected_photos = yolki_df
+        selected_photos = yolki_df_filtered
 
     for _, row in selected_photos.iterrows():
         photo_path = os.path.join(os.path.dirname(__file__), "static", row['photo'])
         shutil.copy(photo_path, dataset_folder)
 
-    train_photos, val_photos = train_test_split(selected_photos, train_size=train_size, random_state=1)
+        txt_file = os.path.splitext(row['photo'])[0] + '.txt'
+        if os.path.exists(os.path.join(os.path.dirname(__file__), "static", txt_file)):
+            shutil.copy(os.path.join(os.path.dirname(__file__), "static", txt_file), dataset_folder)
 
-    train_folder = os.path.join(dataset_folder, 'train')
-    val_folder = os.path.join(dataset_folder, 'val')
-    os.makedirs(train_folder, exist_ok=True)
-    os.makedirs(val_folder, exist_ok=True)
-
-    for _, row in train_photos.iterrows():
-        photo_path = os.path.join(os.path.dirname(__file__), "static", row['photo'])
-        shutil.copy(photo_path, train_folder)
-
-    for _, row in val_photos.iterrows():
-        photo_path = os.path.join(os.path.dirname(__file__), "static", row['photo'])
-        shutil.copy(photo_path, val_folder)
+    split_and_save_dataset(dataset_folder, dataset_folder_a, test_size=val_size)
 
     datasets_df = pd.read_csv(DATASETS_CSV)
     new_dataset_df = pd.DataFrame([new_dataset])
@@ -219,6 +215,7 @@ def split_and_save_dataset(source_folder, destination_folder, test_size):
     texts = [f for f in all_files if f.endswith('.txt')]
 
     images_with_texts = [img for img in images if os.path.splitext(img)[0] + '.txt' in texts]
+
     train_files, val_files = train_test_split(images_with_texts, test_size=test_size, random_state=42)
 
     train_folder = os.path.join(destination_folder, 'train')
@@ -229,12 +226,14 @@ def split_and_save_dataset(source_folder, destination_folder, test_size):
 
     for file in train_files:
         shutil.copy(os.path.join(source_folder, file), os.path.join(train_folder, file))
+        
         txt_file = os.path.splitext(file)[0] + '.txt'
         if txt_file in texts:
             shutil.copy(os.path.join(source_folder, txt_file), os.path.join(train_folder, txt_file))
 
     for file in val_files:
         shutil.copy(os.path.join(source_folder, file), os.path.join(val_folder, file))
+        
         txt_file = os.path.splitext(file)[0] + '.txt'
         if txt_file in texts:
             shutil.copy(os.path.join(source_folder, txt_file), os.path.join(val_folder, txt_file))
@@ -281,7 +280,7 @@ def create_class():
     else:
         print("Не удалось получить выбранный датасет или имя класса.")
     
-    return redirect(url_for('index'))
+    return '', 204 
 
 @app.route('/create_train_script', methods=['POST'])
 def create_train_script():
@@ -321,7 +320,7 @@ if __name__ == "__main__":
     except Exception as e:
         flash(f'Ошибка при создании файла: {e}', 'error')
 
-    return redirect(url_for('index'))
+    return '', 204 
 
 
 @app.route('/record_result', methods=['POST'])
@@ -366,6 +365,6 @@ def record_result():
     new_entry.to_csv(VAL_CSV, mode='a', header=(existing_data is None), index=False)
 
     return '', 204 
-
+    
 if __name__ == '__main__':
     app.run(debug=True)
