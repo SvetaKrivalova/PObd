@@ -13,30 +13,31 @@
 
     <header>
 
-        ГРАФИЧЕСКИЙ ЧТО-ТО ТАМ
+       <p> Графическая база - система управления базой размеченных изображений</p> 
         
         <div class="tab">
             <button class="tablinks" onclick="openTab(event, 'OneBlock')" id="defaultOpen">Обзор файлов</button>
             <button class="tablinks" onclick="openTab(event, 'TwoBlock')">Создание выборки</button>
             <button class="tablinks" onclick="openTab(event, 'ThreeBlock')">Валидация</button>
-            <button class="tablinks" onclick="openTab(event, 'AutoBlock')" id="userName">ИМЯ ПОЛЬЗОВАТЕЛЯ</button>
+            <button class="tablinksName" onclick="openTab(event, 'AutoBlock')" id="userName">ИМЯ ПОЛЬЗОВАТЕЛЯ</button>
         </div>
 
     </header>
 
         <div id="AutoBlock" class="tabcontent">
-            <h3>Создание выборки</h3>
+            <h3>Войдите под своим именем</h3>
             <form id="userForm">
                 <label for="userSelect">Выберите пользователя:</label>
                 <select id="userSelect">
                     {% for user in users %}
                         <option value="{{ user.name }}">{{ user.name }}</option>
                     {% endfor %}
-                </select>
-                <button type="button" onclick="updateUserName()">ОК</button>
-                <br><br>
-                <input type="text" id="newUserName" placeholder="Введите новое имя">
-                <button type="button" onclick="addUser()">Добавить</button>
+                </select> <br>
+                <button class="buttonOk" type="button" onclick="updateUserName()">ОК</button>
+                <br><br><br>
+                <label for="newUserName">Не нашли свое имя в списке? <br>Добавите его в поле ниже</label>
+                <input type="text" id="newUserName" placeholder="Введите новое имя"> <br>
+                <button class="buttonOk" type="button" onclick="addUser()">Добавить</button>
             </form>
         </div>
 
@@ -92,8 +93,11 @@
                         </div>
                     
                         <div class="thatFile">
-                            Файл: <span id="selectedFileName"></span><br>
-                            <canvas id="fileImage" width="400" height="400" style="border:1px solid #000;"></canvas><br>
+                            <div class="nameFile">
+                                <p class="selectedFileName">Файл:</p> 
+                                <span id="selectedFileName"></span><br>    
+                            </div>
+                            <canvas id="fileImage" width="2000" height="2000" style="border:1px solid #313131;"></canvas><br>
                         </div>
                     </div>
             </main>
@@ -104,23 +108,23 @@
             <h1>Блок создание выборки для обучения</h1>
 
 
-            <button onclick="openCreateDataSet()" class="">Создать датасет </button>
+            <button onclick="openCreateDataSet()" class="btnDownload">Создать датасет </button>
 
             <div class="overlayForCD" onclick="closeCreateDataSet()"></div>
             <div class="CreateDataSet">
                 <div class="VerhLoadingScreen">
-                    <h3>Создать новый датасет</h3>
-                    <button class="close-x" onclick="closeCreateDataSet()"></button>
+                    <h1>Создать новый датасет</h1>
+                    <!-- <button class="" onclick="closeCreateDataSet()"></button> -->
                 </div>
         
 
                     <div class="listFiles">
                         <label class="fileList" for="file">Список файлов</label>
-                        <select size="10" id="vegetables" name="vegetables" multiple onchange="updateFileCount()">
+                   
+                        <select size="10" id="vegetables" name="vegetables" onchange="updateFileCount()">
                             {% for yolka in yolki %}
-                                {% if yolka.txt is not none %}
-                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}">{{ yolka.photo }}</option>
-                                {% endif %}
+                                {% set fileName = yolka.photo.split('/')[-1] %}
+                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -157,7 +161,7 @@
                 <label for="class_name">Введите имя класса:</label>
                 <input type="text" id="class_name" name="class_name" required>
                 
-                <button type="submit">Создать класс</button>
+                <button type="submit" >Создать класс</button>
             </form><br>
 
 
@@ -186,15 +190,15 @@
                     <input type="number" id="save_period" name="save_period" value="50" required>
                 </div>
 
-                <button type="submit">Создать train.py</button>
+                <button type="submit" class="btnDownload">Создать train.py</button>
             </form>
         </div>
 
         <div id="ThreeBlock" class="tabcontent">
 
             <form id="resultForm" action="{{ url_for('record_result') }}" method="POST">
-                <div class="viewFiles">
-                    <div class="listFiles">
+                <div class="viewFilesV">
+                    <div class="listFilesV">
                         <label class="fileList" for="file">Список файлов</label>
                         <select size="20" id="fruitsV" name="fruits" onchange="updateImage('fruitsV', 'fileImageV', 'selectedFileNameV')">
                             {% for yolka in yolki %}
@@ -204,17 +208,23 @@
                         </select>
                     </div>
                 
-                    <div class="thatFile">
-                        Файл: <span id="selectedFileNameV"></span><br>
-                        <canvas id="fileImageV" width="400" height="400" style="border:1px solid #000;"></canvas><br>
+                    <div class="thatFileV">
+                            <div class="">
+                                <div class="nameFileV">
+                                    <p class="selectedFileName">Файл:</p> 
+                                    <span id="selectedFileNameV"></span><br>    
+                                </div>
+                                <canvas id="fileImageV" width="500" height="500" style="border:1px solid #313131;"></canvas><br>
+                            </div>
+                        <div>
+                            <button type="button" onclick="recordResult(1)">Да</button>
+                            <button type="button" onclick="recordResult(0)">Нет</button>
+                            <button type="button" onclick="endProcess()">Завершить процесс</button>
+                        </div>
                     </div>
-                
-                    <div>
-                        <button type="button" onclick="recordResult(1)">Да</button>
-                        <button type="button" onclick="recordResult(0)">Нет</button>
-                        <button type="button" onclick="endProcess()">Завершить процесс</button>
-                    </div>
-                </div>
+
+                </div> 
+               
             </form>
 
             <div class="inputsval1">
