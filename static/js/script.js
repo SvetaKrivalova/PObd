@@ -310,7 +310,7 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
                 const values = line.split(' ').map(Number);
                 if (values.length === 5) {
                     const [index, x, y, w, h] = values;
-
+                    const I = 0.7;
                     const X = x * canvasWidth;
                     const Y = y * canvasHeight;
                     const W = w * canvasWidth;
@@ -318,7 +318,7 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
 
                     ctx.strokeStyle = 'red'; 
                     ctx.lineWidth = 2;
-                    ctx.strokeRect(X,Y,W, H);
+                    ctx.strokeRect(I*X,I*Y,I*W,I*H);
                 }
             });
         })
