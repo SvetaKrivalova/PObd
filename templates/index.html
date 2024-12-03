@@ -85,7 +85,8 @@
                             <label class="fileList" for="file">Список файлов</label>
                             <select size="20" id="fruits" name="fruits" onchange="updateImage('fruits', 'fileImage', 'selectedFileName')">
                                 {% for yolka in yolki %}
-                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ yolka.photo }}</option>
+                                    {% set fileName = yolka.photo.split('/')[-1] %}
+                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -197,7 +198,8 @@
                         <label class="fileList" for="file">Список файлов</label>
                         <select size="20" id="fruitsV" name="fruits" onchange="updateImage('fruitsV', 'fileImageV', 'selectedFileNameV')">
                             {% for yolka in yolki %}
-                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ yolka.photo }}</option>
+                            {% set fileName = yolka.photo.split('/')[-1] %}
+                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
                             {% endfor %}
                         </select>
                     </div>
