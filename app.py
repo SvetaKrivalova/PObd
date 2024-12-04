@@ -295,6 +295,8 @@ def create_train_script():
             selected_dataset += os.path.sep
 
         script_path = os.path.join(selected_dataset, 'train.py')
+        abs_selected_dataset = os.path.abspath(selected_dataset)
+
         
         script_content = f"""import torch
 import os
@@ -304,8 +306,8 @@ from ultralytics import YOLO
 
 if __name__ == "__main__":
     model = YOLO('yolo11n.pt')
-    results = model.train(
-        data='{os.path.join(selected_dataset, 'data.yaml')}',
+    results = model.train( 
+        data='{(os.path.join(abs_selected_dataset, 'data.yaml')).replace("\\", "\\\\")}',   
         imgsz={imgsz},
         epochs={epochs},
         batch={batch},
