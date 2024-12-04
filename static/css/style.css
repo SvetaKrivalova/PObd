@@ -44,6 +44,23 @@ header {
   color: #333;
 }
 
+.close-x:hover{
+  background-color:  white;
+}
+
+.close-x2 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 32px;
+  color: #333;
+}
+
+.close-x2:hover{
+  background-color:  white;
+}
+
+
 /* Первый блок */
 main {
   padding: 20px;
@@ -150,6 +167,7 @@ h1 {
 
 .inputsval1 {
   margin: 20px 0;
+  width: 250px;
 }
 
 .viewFiles {
@@ -252,7 +270,7 @@ button:hover {
 .CreateDataSet {
   display: none; 
   position: absolute;
-  top: 70%;
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: white;
@@ -267,6 +285,9 @@ button:hover {
 }
 
 
+
+
+
 .showForCD {
   display: block; /* Показываем попап и затемнение */
 }
@@ -278,14 +299,6 @@ button:hover {
   margin-bottom: 15px;
 }
 
-.close-x {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 20px;
-  color: #333;
-}
-
 .listFiles {
   margin-bottom: 15px;
 }
@@ -295,13 +308,7 @@ button:hover {
   margin-bottom: 5px;
 }
 
-/* select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 15px;
-} */
+
 
 #datasets{
   width: 170px;
@@ -323,15 +330,6 @@ input[type="text"] {
 
 .form-group {
   margin-bottom: 15px;
-}
-
-/* Стили для кнопок внутри форм */
-.CreateDataSet button {
-  background-color: #007BFF;
-}
-
-.CreateDataSet button:hover {
-  background-color: #0056b3;
 }
 
 
