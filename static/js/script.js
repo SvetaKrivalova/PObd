@@ -2,22 +2,18 @@
 document.getElementById("defaultOpen").click();
 
 function openTab(evt, Tab) {
-    // Declare all variables
     var i, tabcontent, tablinks;
 
-    // Get all elements with class="tabcontent" and hide them
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
 
-    // Get all elements with class="tablinks" and remove the class "active"
     tablinks = document.getElementsByClassName("tablinks");
     for (i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
 
-    // Show the current tab, and add an "active" class to the button that opened the tab
     document.getElementById(Tab).style.display = "block";
     evt.currentTarget.className += " active";
 }
@@ -116,8 +112,21 @@ window.onload = function() {
 
 function updateFileLabel(files) {
     const fileLabel = document.getElementById('file-label');
-    const fileNames = Array.from(files).map(file => file.name).join(', ');
-    fileLabel.textContent = fileNames;
+    if (files.length > 0) {
+        const fileNames = Array.from(files).map(file => file.name).join('<br>');
+        fileLabel.innerHTML = fileNames;
+    } else {
+        fileLabel.textContent = 'Нет загружаемых файлов';
+    }
+}
+
+function validateForm() {
+    const fileInput = document.getElementById('showUploadForm');
+    if (fileInput.files.length === 0) {
+        alert('Пожалуйста, добавьте файлы для загрузки.');
+        return false;
+    }
+    return true;
 }
 
 document.getElementById('photoForm').onsubmit = function(event) {
@@ -273,11 +282,15 @@ function updateFileCount() {
 }
 
 function updateImage(selectId, canvasId, fileNameId) {
+    console.log("Функция updateImage вызвана");
     const selectElement = document.getElementById(selectId);
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
     const fileNameElement = document.getElementById(fileNameId);
+
+    console.log("Выбранный файл:", selectedOption.value);
+    console.log("Текстовый файл:", selectedOption.dataset.txt);
 
     fileNameElement.textContent = "/static/" + selectedOption.dataset.txt;
 
@@ -296,7 +309,9 @@ function updateImage(selectId, canvasId, fileNameId) {
     };
 }
 
+
 function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
+    console.log("Функция loadCoordinates вызвана с файлом:", txtFileName);
     fetch("/static/" + txtFileName) 
         .then(response => {
             if (!response.ok) {
@@ -310,15 +325,19 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
                 const values = line.split(' ').map(Number);
                 if (values.length === 5) {
                     const [index, x, y, w, h] = values;
-                    const I = 0.65;
+
+                    koeff = 0.65;
+
                     const X = x * canvasWidth;
                     const Y = y * canvasHeight;
                     const W = w * canvasWidth;
-                    const H = h * canvasHeight;
+                    const H = h * canvasHeight; 
+
+                    console.log(`Index: ${index}, X: ${X}, Y: ${Y}, W: ${W}, H: ${H}`);
 
                     ctx.strokeStyle = 'red'; 
-                    ctx.lineWidth = 7;
-                    ctx.strokeRect(I*X,I*Y,I*W,I*H);
+                    ctx.lineWidth = 5;
+                    ctx.strokeRect(koeff*X, koeff*Y, koeff*W, koeff*H); 
                 }
             });
         })
@@ -326,6 +345,14 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
             console.error('Ошибка:', error);
         });
 }
+
+
+async function selectFolder() {
+    const folderHandle = await window.showDirectoryPicker();
+    const path = folderHandle.name;
+    document.getElementById('destinationFolder').value = path;
+}
+
 
 function recordResult(result) {
     const userNameButton = document.getElementById('userName');
@@ -377,6 +404,7 @@ function endProcess() {
         alert('Зайдите в аккаунт'); 
     } else {
         document.getElementById('userName').textContent = 'ИМЯ ПОЛЬЗОВАТЕЛЯ';
+        location.reload();
     }
 }
 

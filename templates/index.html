@@ -55,10 +55,10 @@
                         </div>
                     
                         <div class="listFiles">
-                            <span class="file" id="file-label"></span>
+                            <span class="file" id="file-label">Нет загружаемых файлов</span>
                         </div>
                         
-                        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+                        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
                             <label class="file-btn" for="showUploadForm">Выбрать файлы</label>
                             
                             <button class="downloadBtn2" type="submit">Загрузить</button>
@@ -137,7 +137,8 @@
                         <input type="text" id="datasetName" name="dataset_name" required placeholder="Введите название папки"><br>
                     
                         <label for="destinationFolder">Путь к папке назначения:</label>
-                        <input type="text" id="destinationFolder" name="destination_folder" required placeholder="Введите путь к папке"><br>
+                        <input type="text" id="destinationFolder" name="destination_folder" required placeholder="Введите путь к папке" readonly>
+                        <button type="button" onclick="selectFolder()">Выбрать папку</button>
                     
                         <label for="trainSize">Размер train выборки (0-1):</label>
                         <input type="number" id="trainSize" name="train_size" min="0" max="1" step="0.01" value="0.8" required placeholder="Например, 0.8"><br>
@@ -207,24 +208,22 @@
                             {% endfor %}
                         </select>
                     </div>
-                
+                    
                     <div class="thatFileV">
-                            <div class="">
-                                <div class="nameFileV">
-                                    <p class="selectedFileName">Файл:</p> 
-                                    <span id="selectedFileNameV"></span><br>    
-                                </div>
-                                <canvas id="fileImageV" width="500" height="500" style="border:1px solid #313131;"></canvas><br>
+                        <div class="">
+                            <div class="nameFileV">
+                                <p class="selectedFileName">Файл:</p> 
+                                <span id="selectedFileNameV"></span><br>    
                             </div>
+                            <canvas id="fileImageV" width="500" height="500" style="border:1px solid #313131;"></canvas><br>
+                        </div>
                         <div>
                             <button type="button" onclick="recordResult(1)">Да</button>
                             <button type="button" onclick="recordResult(0)">Нет</button>
                             <button type="button" onclick="endProcess()">Завершить процесс</button>
                         </div>
                     </div>
-
                 </div> 
-               
             </form>
 
             <div class="inputsval1">
