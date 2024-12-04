@@ -22,6 +22,11 @@ function openTab(evt, Tab) {
 
 
 
+
+
+
+
+
 function openLoadingScreen() {
     var LoadingScreen = document.querySelector('.LoadingScreen');
     document.querySelector('.overlay').classList.add('show');
@@ -112,9 +117,12 @@ window.onload = function() {
 
 function updateFileLabel(files) {
     const fileLabel = document.getElementById('file-label');
+    const fileCount = document.getElementById('fileCount2');
+    
     if (files.length > 0) {
         const fileNames = Array.from(files).map(file => file.name).join('<br>');
         fileLabel.innerHTML = fileNames;
+        fileCount.textContent = `Количество загружаемых файлов: ${files.length}`;
     } else {
         fileLabel.textContent = 'Нет загружаемых файлов';
     }
@@ -326,7 +334,7 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
                 if (values.length === 5) {
                     const [index, x, y, w, h] = values;
 
-                    koeff = 0.65;
+                    koeff = 1;
 
                     const X = x * canvasWidth;
                     const Y = y * canvasHeight;
@@ -336,8 +344,8 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
                     console.log(`Index: ${index}, X: ${X}, Y: ${Y}, W: ${W}, H: ${H}`);
 
                     ctx.strokeStyle = 'red'; 
-                    ctx.lineWidth = 5;
-                    ctx.strokeRect(koeff*X, koeff*Y, koeff*W, koeff*H); 
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(koeff*0.969*X, koeff*0.92*Y, koeff*3*W, koeff*2*H); 
                 }
             });
         })
