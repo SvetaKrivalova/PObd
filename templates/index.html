@@ -51,12 +51,15 @@
                     <div class="LoadingScreen">
                         <div class="VerhLoadingScreen">
                             <h3>Загрузка файлов</h3>
-                            <button class="close-x" onclick="closeLoadingScreen()"></button>
+                            <button class="close-x" onclick="closeLoadingScreen()">
+                                <img src="{{ url_for('static', filename='img/close-x.svg') }}" alt="">
+                             </button>
                         </div>
                     
                         <div class="listFiles">
                             <span class="file" id="file-label">Нет загружаемых файлов</span>
                         </div>
+                        <p id="fileCount2"> </p>
                         
                         <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
                             <label class="file-btn" for="showUploadForm">Выбрать файлы</label>
@@ -83,6 +86,7 @@
 
                     <div class="viewFiles">
                         <div class="listFiles">
+                            
                             <label class="fileList" for="file">Список файлов</label>
                             <select size="20" id="fruits" name="fruits" onchange="updateImage('fruits', 'fileImage', 'selectedFileName')">
                                 {% for yolka in yolki %}
@@ -90,6 +94,7 @@
                                     <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
                                 {% endfor %}
                             </select>
+                            <p id="fileCount">Всего файлов:{{ yolki|length }}</p>
                         </div>
                     
                         <div class="thatFile">
@@ -114,7 +119,10 @@
             <div class="CreateDataSet">
                 <div class="VerhLoadingScreen">
                     <h1>Создать новый датасет</h1>
-                    <!-- <button class="" onclick="closeCreateDataSet()"></button> -->
+                    <button class="close-x2" onclick="closeCreateDataSet()">
+                        <img src="{{ url_for('static', filename='img/close-x.svg') }}" alt="">
+                     </button>
+                     
                 </div>
         
 
@@ -147,6 +155,7 @@
                         <input type="number" id="valSize" name="val_size" min="0" max="1" step="0.01" value="0.2" required placeholder="Например, 0.2"><br>
                     
                         <button type="submit">Сохранить датасет</button>
+                        
                     </form><br>
 
             </div><br><br>
@@ -192,6 +201,7 @@
                 </div>
 
                 <button type="submit" class="btnDownload">Создать train.py</button>
+                <p>"После нажатия на кнопку, файл сохраниться в папку, <br> в которой лежит указанный датасет"</p>
             </form>
         </div>
 
