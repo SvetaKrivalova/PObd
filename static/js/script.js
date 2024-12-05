@@ -115,6 +115,7 @@ window.onload = function() {
     filterFilesV()
 };
 
+
 function updateFileLabel(files) {
     const fileLabel = document.getElementById('file-label');
     const fileCount = document.getElementById('fileCount2');
@@ -136,6 +137,18 @@ function validateForm() {
         return false;
     }
     return true;
+}
+
+
+function validateForm() {
+    const trainSize = parseFloat(document.getElementById('trainSize').value);
+    const valSize = parseFloat(document.getElementById('valSize').value);
+
+    if (trainSize + valSize !== 1) {
+        alert('Сумма train и val выборок должна быть равна 1.');
+        return false; // Отменяем отправку формы
+    }
+    return true; // Разрешаем отправку формы
 }
 
 document.getElementById('photoForm').onsubmit = function(event) {
