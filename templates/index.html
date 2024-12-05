@@ -61,7 +61,7 @@
                         </div>
                         <p id="fileCount2"> </p>
                         
-                        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+                        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" onsubmit="return validateForm1()">
                             <label class="file-btn" for="showUploadForm">Выбрать файлы</label>
                             
                             <button class="downloadBtn2" type="submit">Загрузить</button>
@@ -95,6 +95,7 @@
                                 {% endfor %}
                             </select>
                             <p id="fileCount">Всего файлов:{{ yolki|length }}</p>
+                            <p id="fileCount">Всего файлов с разметкой:{{ non_empty_count }}</p>
                         </div>
                     
                         <div class="thatFile">
@@ -102,7 +103,7 @@
                                 <p class="selectedFileName">Файл:</p> 
                                 <span id="selectedFileName"></span><br>    
                             </div>
-                            <img id="fileImage" src="" width="800" height="800"><br>
+                            <img id="fileImage" src="" ><br>
                             <!-- <canvas id="fileImage" width="2000" height="2000" style="border:1px solid #313131;"></canvas><br> -->
                         </div>
                     </div>
