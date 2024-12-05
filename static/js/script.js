@@ -303,7 +303,19 @@ function updateFileCount() {
     console.log(`Количество выбранных файлов: ${count}`);
 }
 
-function updateImage(selectId, canvasId, fileNameId) {
+
+function updateImage() {
+    var select = document.getElementById("fruits");
+    var selectedFileName = select.options[select.selectedIndex].text;
+    var selectedFilePath = select.value;
+    document.getElementById("selectedFileName").innerText = selectedFileName;
+    var img = document.getElementById("fileImage");
+    img.src = '/static/' + selectedFilePath;
+}
+
+
+
+function updateImageV(selectId, canvasId, fileNameId) {
     console.log("Функция updateImage вызвана");
     const selectElement = document.getElementById(selectId);
     const selectedOption = selectElement.options[selectElement.selectedIndex];
