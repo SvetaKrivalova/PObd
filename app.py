@@ -22,7 +22,7 @@ if not os.path.exists(YOLKA_CSV):
     pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result']).to_csv(YOLKA_CSV, index=False)
 
 if not os.path.exists(DATASETS_CSV):
-    pd.DataFrame(columns=['id', 'dataset_name', 'dataset_path']).to_csv(DATASETS_CSV, index=False)
+    pd.DataFrame(columns=['id', 'dataset_path']).to_csv(DATASETS_CSV, index=False)
 
 if not os.path.exists(VAL_CSV):
     pd.DataFrame(columns=['id', 'user', 'photo', 'val_date', 'result']).to_csv(VAL_CSV, index=False)
@@ -171,7 +171,6 @@ def copy_photos():
     new_dataset_id = len(datasets_df) + 1
     new_dataset = {
         'id': new_dataset_id,
-        'dataset_name': dataset_name,
         'dataset_path': os.path.join(relative_path, dataset_name).replace("\\", "/")
     }
 
