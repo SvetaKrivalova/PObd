@@ -27,6 +27,9 @@ if not os.path.exists(DATASETS_CSV):
 if not os.path.exists(VAL_CSV):
     pd.DataFrame(columns=['id', 'user', 'photo', 'val_date', 'result']).to_csv(VAL_CSV, index=False)
 
+destination_dataset_folder = 'datasets'
+if not os.path.exists(destination_dataset_folder):
+    os.makedirs(destination_dataset_folder, exist_ok=True)
 
 def add_user(name):
     df = pd.read_csv(USER_CSV)
@@ -108,6 +111,7 @@ def upload_files():
                     'txt': txt_path,
                     'photo_date': datetime.now()
                 })
+                print(f"Текстовый файл найден: {txt_path}")
             else:
                 new_entries.append({
                     'photo': relative_path,
@@ -118,15 +122,22 @@ def upload_files():
 
         elif file_extension == '.txt':
             image_filename = os.path.splitext(filename)[0] + '.jpg'
-            if image_filename in image_files:
-                corresponding_image_path = os.path.relpath(os.path.join(images_dir, image_filename), start=os.path.join(os.path.dirname(__file__), "static"))
-                corresponding_image_path = corresponding_image_path.replace("\\", "/")
-                new_entries.append({
-                    'photo': corresponding_image_path,
-                    'txt': relative_path, 
-                    'photo_date': datetime.now()
-                })
-            else:
+            found_image = False
+
+            for ext in ['.jpg', '.jpeg', '.png']:
+                if os.path.exists(os.path.join(images_dir, os.path.splitext(filename)[0] + ext)):
+                    found_image = True
+                    corresponding_image_path = os.path.relpath(os.path.join(images_dir, os.path.splitext(filename)[0] + ext), start=os.path.join(os.path.dirname(__file__), "static"))
+                    corresponding_image_path = corresponding_image_path.replace("\\", "/")
+                    new_entries.append({
+                        'photo': corresponding_image_path,
+                        'txt': relative_path, 
+                        'photo_date': datetime.now()
+                    })
+                    print(f"Обновлено поле txt для {corresponding_image_path}")
+                    break
+
+            if not found_image:
                 print(f"Изображение для текстового файла не найдено: {image_filename}")
 
     try:
@@ -135,14 +146,13 @@ def upload_files():
         else:
             yolki_df = pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date'])
 
-        new_entries_df = pd.DataFrame(new_entries)
-        yolki_df = pd.concat([yolki_df, new_entries_df], ignore_index=True)
-        yolki_df.drop_duplicates(subset=['photo', 'txt'], keep='last', inplace=True)  # Удаляем дубликаты по photo и txt
+        if new_entries:
+            new_entries_df = pd.DataFrame(new_entries)
+            yolki_df = pd.concat([yolki_df, new_entries_df], ignore_index=True)
 
+        yolki_df.drop_duplicates(subset=['photo'], keep='last', inplace=True)
         yolki_df.reset_index(drop=True, inplace=True)
-
         yolki_df['id'] = range(1, len(yolki_df) + 1) 
-
         yolki_df.to_csv(YOLKA_CSV, index=False) 
         print("Записи успешно добавлены в CSV.")
     except Exception as e:
@@ -163,19 +173,16 @@ def copy_photos():
 
     if train_size + val_size != 1.0:
         return jsonify({"error": "Сумма train_size и val_size должна быть равна 1."}), 400
-    
-    destination_folder = os.path.join(os.path.dirname(__file__), "static", "datasets")
-    relative_path = os.path.relpath(destination_folder, start=os.path.join(os.path.dirname(__file__), "static"))
 
     datasets_df = pd.read_csv(DATASETS_CSV)
     new_dataset_id = len(datasets_df) + 1
     new_dataset = {
         'id': new_dataset_id,
-        'dataset_path': os.path.join(relative_path, dataset_name).replace("\\", "/")
+        'dataset_path': os.path.join(destination_dataset_folder, dataset_name).replace("\\", "/")
     }
 
-    dataset_folder_a = os.path.join(destination_folder, dataset_name)
-    dataset_folder = os.path.join(destination_folder, dataset_name, "dataset")
+    dataset_folder_a = os.path.join(destination_dataset_folder, dataset_name)
+    dataset_folder = os.path.join(destination_dataset_folder, dataset_name, "dataset")
     os.makedirs(dataset_folder_a, exist_ok=True)
     os.makedirs(dataset_folder, exist_ok=True)
 
@@ -245,7 +252,7 @@ def create_class():
     class_name = request.form.get('class_name')
 
     if selected_dataset and class_name:
-        dataset_folder = os.path.join('static', selected_dataset)
+        dataset_folder = os.path.join(selected_dataset)
         classes_file_path = os.path.join(dataset_folder, 'classes.txt').replace("\\", "/")
         data_yaml_path = os.path.join(dataset_folder, 'data.yaml').replace("\\", "/")
 
@@ -292,7 +299,7 @@ def create_train_script():
         if not selected_dataset.endswith(os.path.sep):
             selected_dataset += os.path.sep
 
-        script_path = os.path.join('static', selected_dataset, 'train.py')
+        script_path = os.path.join(selected_dataset, 'train.py')
         abs_selected_dataset = os.path.abspath(selected_dataset)
 
         script_content = f"""import torch
