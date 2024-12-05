@@ -130,6 +130,15 @@ function updateFileLabel(files) {
     }
 }
 
+function validateForm1() {
+    const fileInput = document.getElementById('showUploadForm');
+    if (fileInput.files.length === 0) {
+        alert('Пожалуйста, добавьте файлы для загрузки.');
+        return false;
+    }
+    return true;
+}
+
 function validateForm() {
     const fileInput = document.getElementById('showUploadForm');
     if (fileInput.files.length === 0) {
@@ -331,8 +340,8 @@ function updateImageV(selectId, canvasId, fileNameId) {
     const img = new Image();
     img.src = "/static/" + selectedOption.value; 
     img.onload = function() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        ctx.clearRect(5, 2, canvas.width, canvas.height);
+        ctx.drawImage(img, 8, 10, canvas.width, canvas.height);
 
         loadCoordinates(selectedOption.dataset.txt, ctx, canvas.width, canvas.height);
     };
@@ -371,7 +380,7 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
 
                     ctx.strokeStyle = 'red'; 
                     ctx.lineWidth = 1;
-                    ctx.strokeRect(koeff*0.969*X, koeff*0.92*Y, koeff*3*W, koeff*2*H); 
+                    ctx.strokeRect(X, Y, 2*W, 2*H); 
                 }
             });
         })
