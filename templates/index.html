@@ -57,7 +57,7 @@
                         </div>
                     
                         <div class="listFiles">
-                            <span class="file" id="file-label">Нет загружаемых файлов</span>
+                            <span class="file" id="file-label"></span>
                         </div>
                         <p id="fileCount2"> </p>
                         
@@ -143,10 +143,6 @@
                         
                         <label for="datasetName">Название папки датасета:</label>
                         <input type="text" id="datasetName" name="dataset_name" required placeholder="Введите название папки"><br>
-                    
-                        <label for="destinationFolder">Путь к папке назначения:</label>
-                        <input type="text" id="destinationFolder" name="destination_folder" required placeholder="Введите путь к папке" readonly>
-                        <button type="button" onclick="selectFolder()">Выбрать папку</button>
                     
                         <label for="trainSize">Размер train выборки (0-1):</label>
                         <input type="number" id="trainSize" name="train_size" min="0" max="1" step="0.01" value="0.8" required placeholder="Например, 0.8"><br>

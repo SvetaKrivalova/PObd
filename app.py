@@ -154,26 +154,25 @@ def upload_files():
 @app.route('/copy_photos', methods=['POST'])
 def copy_photos():
     num_photos = request.form.get('num_photos', type=int)
-    dataset_name = request.form.get('dataset_name') 
-    destination_folder = request.form.get('destination_folder') 
+    dataset_name = request.form.get('dataset_name')
     train_size = request.form.get('train_size', type=float)
     val_size = request.form.get('val_size', type=float)
 
     if dataset_name is None:
         return jsonify({"error": "Необходимо указать название датасета."}), 400
 
-    if destination_folder is None:
-        return jsonify({"error": "Необходимо указать путь к папке назначения."}), 400
-
     if train_size + val_size != 1.0:
         return jsonify({"error": "Сумма train_size и val_size должна быть равна 1."}), 400
+    
+    destination_folder = os.path.join(os.path.dirname(__file__), "static", "datasets")
+    relative_path = os.path.relpath(destination_folder, start=os.path.join(os.path.dirname(__file__), "static"))
 
     datasets_df = pd.read_csv(DATASETS_CSV)
     new_dataset_id = len(datasets_df) + 1
     new_dataset = {
         'id': new_dataset_id,
         'dataset_name': dataset_name,
-        'dataset_path': os.path.join(destination_folder, dataset_name)
+        'dataset_path': os.path.join(relative_path, dataset_name).replace("\\", "/")
     }
 
     dataset_folder_a = os.path.join(destination_folder, dataset_name)
@@ -247,9 +246,9 @@ def create_class():
     class_name = request.form.get('class_name')
 
     if selected_dataset and class_name:
-        dataset_folder = selected_dataset 
-        classes_file_path = os.path.join(dataset_folder, 'classes.txt')
-        data_yaml_path = os.path.join(dataset_folder, 'data.yaml')
+        dataset_folder = os.path.join('static', selected_dataset)
+        classes_file_path = os.path.join(dataset_folder, 'classes.txt').replace("\\", "/")
+        data_yaml_path = os.path.join(dataset_folder, 'data.yaml').replace("\\", "/")
 
         try:
             with open(classes_file_path, 'a') as f:
@@ -294,10 +293,9 @@ def create_train_script():
         if not selected_dataset.endswith(os.path.sep):
             selected_dataset += os.path.sep
 
-        script_path = os.path.join(selected_dataset, 'train.py')
+        script_path = os.path.join('static', selected_dataset, 'train.py')
         abs_selected_dataset = os.path.abspath(selected_dataset)
 
-        
         script_content = f"""import torch
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"

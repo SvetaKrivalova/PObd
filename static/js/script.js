@@ -354,14 +354,6 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
         });
 }
 
-
-async function selectFolder() {
-    const folderHandle = await window.showDirectoryPicker();
-    const path = folderHandle.name;
-    document.getElementById('destinationFolder').value = path;
-}
-
-
 function recordResult(result) {
     const userNameButton = document.getElementById('userName');
     const currentUserName = userNameButton.textContent;
