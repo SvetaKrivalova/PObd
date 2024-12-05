@@ -125,6 +125,7 @@ function updateFileLabel(files) {
         fileCount.textContent = `Количество загружаемых файлов: ${files.length}`;
     } else {
         fileLabel.textContent = 'Нет загружаемых файлов';
+        fileCount.textContent = `Количество загружаемых файлов: 0`;
     }
 }
 
