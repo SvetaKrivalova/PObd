@@ -27,16 +27,23 @@ if not os.path.exists(DATASETS_CSV):
 if not os.path.exists(VAL_CSV):
     pd.DataFrame(columns=['id', 'user', 'photo', 'val_date', 'result']).to_csv(VAL_CSV, index=False)
 
-destination_dataset_folder = 'datasets'
+destination_dataset_folder = os.path.join(os.path.dirname(__file__), "datasets")
 if not os.path.exists(destination_dataset_folder):
-    os.makedirs(destination_dataset_folder, exist_ok=True)
+    os.makedirs(destination_dataset_folder)
+
+images_dir = os.path.join(os.path.dirname(__file__), "images")
+if not os.path.exists(images_dir):
+    os.makedirs(images_dir)
+
+static_dir = os.path.join(os.path.dirname(__file__), "static", "images")
+if not os.path.exists(static_dir):
+    os.makedirs(static_dir)
 
 def add_user(name):
     df = pd.read_csv(USER_CSV)
     new_id = df['id'].max() + 1 if not df.empty else 1 
     new_user = pd.DataFrame({'id': [new_id], 'name': [name]})
     new_user.to_csv(USER_CSV, mode='a', header=False, index=False) 
-
 
 @app.route('/add_user', methods=['POST'])
 def add_user_route():
@@ -69,9 +76,6 @@ def upload_files():
         return "No file part", 400
     
     files = request.files.getlist('files')
-    images_dir = os.path.join(os.path.dirname(__file__), "static", "images")
-    if not os.path.exists(images_dir):
-        os.makedirs(images_dir)
 
     new_entries = []
     image_files = set() 
@@ -96,55 +100,56 @@ def upload_files():
     for file in files:
         filename = file.filename
         file_extension = os.path.splitext(filename)[1].lower()
-        relative_path = os.path.relpath(os.path.join(images_dir, filename), start=os.path.join(os.path.dirname(__file__), "static"))
-        relative_path = relative_path.replace("\\", "/")
+        absolute_path = os.path.abspath(os.path.join(images_dir, filename)).replace("\\", "/")
 
         if file_extension != '.txt':
             txt_filename = os.path.splitext(filename)[0] + '.txt'
             txt_file_path = os.path.join(images_dir, txt_filename)
 
             if os.path.exists(txt_file_path):
-                txt_path = os.path.relpath(txt_file_path, start=os.path.join(os.path.dirname(__file__), "static"))
-                txt_path = txt_path.replace("\\", "/")
+                absolute_txt_path = os.path.abspath(txt_file_path).replace("\\", "/")
                 new_entries.append({
-                    'photo': relative_path,
-                    'txt': txt_path,
-                    'photo_date': datetime.now()
+                    'photo': absolute_path,
+                    'txt': absolute_txt_path,
+                    'photo_date': datetime.now(),
+                    'val_result': None  
                 })
-                print(f"Текстовый файл найден: {txt_path}")
+                print(f"Текстовый файл найден: {absolute_txt_path}")
             else:
                 new_entries.append({
-                    'photo': relative_path,
+                    'photo': absolute_path,
                     'txt': None, 
-                    'photo_date': datetime.now()
+                    'photo_date': datetime.now(),
+                    'val_result': None 
                 })
                 print(f"Текстовый файл не найден для изображения: {txt_file_path}")
 
         elif file_extension == '.txt':
-            image_filename = os.path.splitext(filename)[0] + '.jpg'
-            found_image = False
-
+            image_found = False
             for ext in ['.jpg', '.jpeg', '.png']:
-                if os.path.exists(os.path.join(images_dir, os.path.splitext(filename)[0] + ext)):
-                    found_image = True
-                    corresponding_image_path = os.path.relpath(os.path.join(images_dir, os.path.splitext(filename)[0] + ext), start=os.path.join(os.path.dirname(__file__), "static"))
-                    corresponding_image_path = corresponding_image_path.replace("\\", "/")
+                image_filename = os.path.splitext(filename)[0] + ext
+                image_path = os.path.join(images_dir, image_filename)
+
+                if os.path.exists(image_path):
+                    image_found = True
+                    corresponding_image_path = os.path.abspath(image_path).replace("\\", "/")
                     new_entries.append({
                         'photo': corresponding_image_path,
-                        'txt': relative_path, 
-                        'photo_date': datetime.now()
+                        'txt': absolute_path, 
+                        'photo_date': datetime.now(),
+                        'val_result': None 
                     })
                     print(f"Обновлено поле txt для {corresponding_image_path}")
                     break
 
-            if not found_image:
+            if not image_found:
                 print(f"Изображение для текстового файла не найдено: {image_filename}")
 
     try:
         if os.path.exists(YOLKA_CSV):
             yolki_df = pd.read_csv(YOLKA_CSV)
         else:
-            yolki_df = pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date'])
+            yolki_df = pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
 
         if new_entries:
             new_entries_df = pd.DataFrame(new_entries)
@@ -158,6 +163,11 @@ def upload_files():
     except Exception as e:
         print(f"Ошибка при сохранении в CSV: {e}")
         return "Error saving to CSV", 500
+    
+    for filename in os.listdir(images_dir):
+        source_file = os.path.join(images_dir, filename)
+        destination_file = os.path.join(static_dir, filename)
+        shutil.copy(source_file, destination_file)
 
     return redirect(url_for('index'))
 
@@ -178,7 +188,7 @@ def copy_photos():
     new_dataset_id = len(datasets_df) + 1
     new_dataset = {
         'id': new_dataset_id,
-        'dataset_path': os.path.join(destination_dataset_folder, dataset_name).replace("\\", "/")
+        'dataset_path': os.path.abspath(os.path.join(destination_dataset_folder, dataset_name)).replace("\\", "/")
     }
 
     dataset_folder_a = os.path.join(destination_dataset_folder, dataset_name)
@@ -188,7 +198,7 @@ def copy_photos():
 
     yolki_df = pd.read_csv(YOLKA_CSV)
 
-    yolki_df['txt_exists'] = yolki_df['photo'].apply(lambda x: os.path.exists(os.path.join(os.path.dirname(__file__), "static", os.path.splitext(x)[0] + '.txt')))
+    yolki_df['txt_exists'] = yolki_df['photo'].apply(lambda x: os.path.exists(os.path.join(os.path.dirname(__file__), "Images", os.path.splitext(x)[0] + '.txt')))
     yolki_df_filtered = yolki_df[yolki_df['txt_exists']]
 
     if num_photos is not None:
@@ -197,12 +207,12 @@ def copy_photos():
         selected_photos = yolki_df_filtered
 
     for _, row in selected_photos.iterrows():
-        photo_path = os.path.join(os.path.dirname(__file__), "static", row['photo'])
+        photo_path = os.path.join(os.path.dirname(__file__), "Images", row['photo'])
         shutil.copy(photo_path, dataset_folder)
 
         txt_file = os.path.splitext(row['photo'])[0] + '.txt'
-        if os.path.exists(os.path.join(os.path.dirname(__file__), "static", txt_file)):
-            shutil.copy(os.path.join(os.path.dirname(__file__), "static", txt_file), dataset_folder)
+        if os.path.exists(os.path.join(os.path.dirname(__file__), "Images", txt_file)):
+            shutil.copy(os.path.join(os.path.dirname(__file__), "Images", txt_file), dataset_folder)
 
     split_and_save_dataset(dataset_folder, dataset_folder_a, test_size=val_size)
 
@@ -252,7 +262,7 @@ def create_class():
     class_name = request.form.get('class_name')
 
     if selected_dataset and class_name:
-        dataset_folder = os.path.join(selected_dataset)
+        dataset_folder = os.path.join(destination_dataset_folder, selected_dataset)
         classes_file_path = os.path.join(dataset_folder, 'classes.txt').replace("\\", "/")
         data_yaml_path = os.path.join(dataset_folder, 'data.yaml').replace("\\", "/")
 
@@ -328,7 +338,6 @@ if __name__ == "__main__":
 
     return '', 204 
 
-
 @app.route('/record_result', methods=['POST'])
 def record_result():
     print(request.form)
@@ -344,15 +353,21 @@ def record_result():
 
     print(f"Получено фото: {selected_photo}, результат: {result}, пользователь: {username}")
 
+    absolute_photo_path = os.path.abspath(selected_photo).replace("\\", "/")
+
     yolka_data = pd.read_csv(YOLKA_CSV)
-    if selected_photo in yolka_data['photo'].values:
-        yolka_data.loc[yolka_data['photo'] == selected_photo, 'val_result'] = int(result)
-        yolka_data.loc[yolka_data['photo'] == selected_photo, 'photo_date'] = val_date
+
+    if absolute_photo_path in yolka_data['photo'].values:
+        yolka_data.loc[yolka_data['photo'] == absolute_photo_path, 'val_result'] = result
+        yolka_data.loc[yolka_data['photo'] == absolute_photo_path, 'photo_date'] = val_date
+        print(f"Обновлена запись для фото: {absolute_photo_path}")
     else:
         next_index = yolka_data['id'].max() + 1 if not yolka_data.empty else 1
-        new_entry = pd.DataFrame([[next_index, selected_photo, '', val_date, int(result)]], 
+        new_entry = pd.DataFrame([[next_index, absolute_photo_path, '', val_date, result]], 
                                  columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
-        yolka_data = yolka_data.append(new_entry, ignore_index=True)
+        
+        yolka_data = pd.concat([yolka_data, new_entry], ignore_index=True)
+        print(f"Добавлена новая запись для фото: {absolute_photo_path}")
 
     yolka_data.to_csv(YOLKA_CSV, index=False)
 
@@ -365,12 +380,12 @@ def record_result():
     except (FileNotFoundError, ValueError):
         next_index = 1 
 
-    new_entry = pd.DataFrame([[next_index, username, selected_photo, val_date, result]], 
+    new_entry = pd.DataFrame([[next_index, username, absolute_photo_path, val_date, result]], 
                              columns=['id', 'user', 'photo', 'val_date', 'result'])
 
     new_entry.to_csv(VAL_CSV, mode='a', header=(existing_data is None), index=False)
 
     return '', 204 
-    
+
 if __name__ == '__main__':
     app.run(debug=True)

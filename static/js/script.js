@@ -319,10 +319,8 @@ function updateImage() {
     var selectedFilePath = select.value;
     document.getElementById("selectedFileName").innerText = selectedFileName;
     var img = document.getElementById("fileImage");
-    img.src = '/static/' + selectedFilePath;
+    img.src = '/static/images/' + selectedFilePath.split('images/')[1];
 }
-
-
 
 function updateImageV(selectId, canvasId, fileNameId) {
     console.log("Функция updateImage вызвана");
@@ -335,13 +333,13 @@ function updateImageV(selectId, canvasId, fileNameId) {
     console.log("Выбранный файл:", selectedOption.value);
     console.log("Текстовый файл:", selectedOption.dataset.txt);
 
-    fileNameElement.textContent = "/static/" + selectedOption.dataset.txt;
+    fileNameElement.textContent = "/static/images/" + (selectedOption.dataset.txt).split('images/')[1];
 
     const img = new Image();
-    img.src = "/static/" + selectedOption.value; 
+    img.src = "/static/images/" + (selectedOption.value).split('images/')[1]; 
     img.onload = function() {
-        ctx.clearRect(5, 2, canvas.width, canvas.height);
-        ctx.drawImage(img, 8, 10, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         loadCoordinates(selectedOption.dataset.txt, ctx, canvas.width, canvas.height);
     };
@@ -355,7 +353,7 @@ function updateImageV(selectId, canvasId, fileNameId) {
 
 function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
     console.log("Функция loadCoordinates вызвана с файлом:", txtFileName);
-    fetch("/static/" + txtFileName) 
+    fetch("/static/images/" + txtFileName.split('images/')[1]) 
         .then(response => {
             if (!response.ok) {
                 throw new Error('Ошибка загрузки текстового файла: ' + response.statusText);
@@ -417,7 +415,7 @@ function recordResult(result) {
             if (response.ok) {
                 if (selectElement.selectedIndex < selectElement.options.length - 1) {
                     selectElement.selectedIndex += 1;
-                    updateImage('fruitsV', 'fileImageV', 'selectedFileNameV'); 
+                    updateImageV('fruitsV', 'fileImageV', 'selectedFileNameV');
                 } else {
                     alert("Это последняя фотография.");
                 }
