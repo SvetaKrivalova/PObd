@@ -4,16 +4,22 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 import shutil
 import csv
+import sys
 from sklearn.model_selection import train_test_split
 import uuid
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-YOLKA_CSV = 'yolka_data.csv'
-DATASETS_CSV = 'datasets_data.csv'
-VAL_CSV = 'val_data.csv'
-USER_CSV = 'users.csv'
+if getattr(sys, 'frozen', False):
+    base_path = os.path.dirname(sys.executable)
+else:
+    base_path = os.path.dirname(os.path.abspath(__file__))
+
+YOLKA_CSV = os.path.join(base_path, 'yolka_data.csv')
+DATASETS_CSV = os.path.join(base_path, 'datasets_data.csv')
+VAL_CSV = os.path.join(base_path, 'val_data.csv')
+USER_CSV = os.path.join(base_path, 'users.csv')
 
 if not os.path.exists(USER_CSV):
     pd.DataFrame(columns=['id', 'name']).to_csv(USER_CSV, index=False)
@@ -27,11 +33,11 @@ if not os.path.exists(DATASETS_CSV):
 if not os.path.exists(VAL_CSV):
     pd.DataFrame(columns=['id', 'user', 'photo', 'val_date', 'result']).to_csv(VAL_CSV, index=False)
 
-destination_dataset_folder = os.path.join(os.path.dirname(__file__), "datasets")
+destination_dataset_folder = os.path.join(base_path, "datasets")
 if not os.path.exists(destination_dataset_folder):
     os.makedirs(destination_dataset_folder)
 
-images_dir = os.path.join(os.path.dirname(__file__), "images")
+images_dir = os.path.join(base_path, "images")
 if not os.path.exists(images_dir):
     os.makedirs(images_dir)
 
