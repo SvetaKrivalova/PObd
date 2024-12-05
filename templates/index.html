@@ -127,14 +127,15 @@
         
 
                     <div class="listFiles">
-                        <label class="fileList" for="file">Список файлов</label>
+                        <p id="fileCount">Всего файлов:{{ yolki|length }}</p>
+                        <!-- <label class="fileList" for="file">Список файлов</label> -->
                    
-                        <select size="10" id="vegetables" name="vegetables" onchange="updateFileCount()">
+                        <!-- <select size="10" id="vegetables" name="vegetables" onchange="updateFileCount()">
                             {% for yolka in yolki %}
                                 {% set fileName = yolka.photo.split('/')[-1] %}
                                 <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
                             {% endfor %}
-                        </select>
+                        </select> -->
                     </div>
 
                     <form id="photoForm" action="/copy_photos" method="post">
