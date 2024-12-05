@@ -102,7 +102,8 @@
                                 <p class="selectedFileName">Файл:</p> 
                                 <span id="selectedFileName"></span><br>    
                             </div>
-                            <canvas id="fileImage" width="2000" height="2000" style="border:1px solid #313131;"></canvas><br>
+                            <img id="fileImage" src="" width="800" height="800"><br>
+                            <!-- <canvas id="fileImage" width="2000" height="2000" style="border:1px solid #313131;"></canvas><br> -->
                         </div>
                     </div>
             </main>
@@ -127,7 +128,7 @@
         
 
                     <div class="listFiles">
-                        <p id="fileCount">Всего файлов:{{ yolki|length }}</p>
+                        <p id="fileCount">Всего размеченных фотографий:{{ non_empty_count }}</p>
                         <!-- <label class="fileList" for="file">Список файлов</label> -->
                    
                         <!-- <select size="10" id="vegetables" name="vegetables" onchange="updateFileCount()">
@@ -210,7 +211,7 @@
                 <div class="viewFilesV">
                     <div class="listFilesV">
                         <label class="fileList" for="file">Список файлов</label>
-                        <select size="20" id="fruitsV" name="fruits" onchange="updateImage('fruitsV', 'fileImageV', 'selectedFileNameV')">
+                        <select size="20" id="fruitsV" name="fruits" onchange="updateImageV('fruitsV', 'fileImageV', 'selectedFileNameV')">
                             {% for yolka in yolki %}
                             {% set fileName = yolka.photo.split('/')[-1] %}
                                 <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
