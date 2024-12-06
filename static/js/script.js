@@ -135,19 +135,11 @@ function validateForm1() {
     if (fileInput.files.length === 0) {
         alert('Пожалуйста, добавьте файлы для загрузки.');
         return false;
+    } else if (fileInput.files.length > 1000) {
+        alert("Вы можете загрузить разом не более 1000 файлов.");
+        return false;
     }
     return true;
-}
-
-function validateForm1() {
-    const fileInput = document.getElementById('showUploadForm');
-
-    if (fileInput.files.length > 1000) {
-        alert("Вы можете загрузить разом не более 1000 файлов.");
-        return false; // Предотвращаем отправку формы
-    }
-
-    return true; // Разрешаем отправку формы
 }
 
 function validateForm() {
@@ -158,7 +150,6 @@ function validateForm() {
     }
     return true;
 }
-
 
 function validateForm() {
     const trainSize = parseFloat(document.getElementById('trainSize').value);

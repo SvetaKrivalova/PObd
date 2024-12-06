@@ -82,8 +82,9 @@ def index():
     users = pd.read_csv(USER_CSV)
     vals = pd.read_csv(VAL_CSV)
     non_empty_count = yolki['txt'].notnull().sum()
+    non_empty = yolki[yolki['txt'].notnull()]
 
-    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'), users=users.to_dict(orient='records'), vals=vals.to_dict(orient='records'))
+    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty=non_empty.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'), users=users.to_dict(orient='records'), vals=vals.to_dict(orient='records'))
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
