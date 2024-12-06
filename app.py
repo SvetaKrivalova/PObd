@@ -16,7 +16,7 @@ if getattr(sys, 'frozen', False):
 else:
     base_path = os.path.dirname(os.path.abspath(__file__))
 
-YOLKA_CSV = os.path.join(base_path, 'yolka_data.csv')
+FILE_CSV = os.path.join(base_path, 'files_data.csv')
 DATASETS_CSV = os.path.join(base_path, 'datasets_data.csv')
 VAL_CSV = os.path.join(base_path, 'val_data.csv')
 USER_CSV = os.path.join(base_path, 'users.csv')
@@ -24,8 +24,8 @@ USER_CSV = os.path.join(base_path, 'users.csv')
 if not os.path.exists(USER_CSV):
     pd.DataFrame(columns=['id', 'name']).to_csv(USER_CSV, index=False)
 
-if not os.path.exists(YOLKA_CSV):
-    pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result']).to_csv(YOLKA_CSV, index=False)
+if not os.path.exists(FILE_CSV):
+    pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result']).to_csv(FILE_CSV, index=False)
 
 if not os.path.exists(DATASETS_CSV):
     pd.DataFrame(columns=['id', 'dataset_path']).to_csv(DATASETS_CSV, index=False)
@@ -44,6 +44,15 @@ if not os.path.exists(images_dir):
 static_dir = os.path.join(os.path.dirname(__file__), "static", "images")
 if not os.path.exists(static_dir):
     os.makedirs(static_dir)
+
+def copy_images_to_static():
+    for filename in os.listdir(images_dir):
+        source_file = os.path.join(images_dir, filename)
+        destination_file = os.path.join(static_dir, filename)
+        if os.path.isfile(source_file):
+            shutil.copy2(source_file, destination_file)
+
+copy_images_to_static()
 
 def add_user(name):
     df = pd.read_csv(USER_CSV)
@@ -68,7 +77,7 @@ def get_users():
 
 @app.route('/')
 def index():
-    yolki = pd.read_csv(YOLKA_CSV)
+    yolki = pd.read_csv(FILE_CSV)
     datasets = pd.read_csv(DATASETS_CSV)
     users = pd.read_csv(USER_CSV)
     vals = pd.read_csv(VAL_CSV)
@@ -152,8 +161,8 @@ def upload_files():
                 print(f"Изображение для текстового файла не найдено: {image_filename}")
 
     try:
-        if os.path.exists(YOLKA_CSV):
-            yolki_df = pd.read_csv(YOLKA_CSV)
+        if os.path.exists(FILE_CSV):
+            yolki_df = pd.read_csv(FILE_CSV)
         else:
             yolki_df = pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
 
@@ -164,7 +173,7 @@ def upload_files():
         yolki_df.drop_duplicates(subset=['photo'], keep='last', inplace=True)
         yolki_df.reset_index(drop=True, inplace=True)
         yolki_df['id'] = range(1, len(yolki_df) + 1) 
-        yolki_df.to_csv(YOLKA_CSV, index=False) 
+        yolki_df.to_csv(FILE_CSV, index=False) 
         print("Записи успешно добавлены в CSV.")
     except Exception as e:
         print(f"Ошибка при сохранении в CSV: {e}")
@@ -202,7 +211,7 @@ def copy_photos():
     os.makedirs(dataset_folder_a, exist_ok=True)
     os.makedirs(dataset_folder, exist_ok=True)
 
-    yolki_df = pd.read_csv(YOLKA_CSV)
+    yolki_df = pd.read_csv(FILE_CSV)
 
     yolki_df['txt_exists'] = yolki_df['photo'].apply(lambda x: os.path.exists(os.path.join(os.path.dirname(__file__), "Images", os.path.splitext(x)[0] + '.txt')))
     yolki_df_filtered = yolki_df[yolki_df['txt_exists']]
@@ -361,21 +370,21 @@ def record_result():
 
     absolute_photo_path = os.path.abspath(selected_photo).replace("\\", "/")
 
-    yolka_data = pd.read_csv(YOLKA_CSV)
+    file_data = pd.read_csv(FILE_CSV)
 
-    if absolute_photo_path in yolka_data['photo'].values:
-        yolka_data.loc[yolka_data['photo'] == absolute_photo_path, 'val_result'] = result
-        yolka_data.loc[yolka_data['photo'] == absolute_photo_path, 'photo_date'] = val_date
+    if absolute_photo_path in file_data['photo'].values:
+        file_data.loc[file_data['photo'] == absolute_photo_path, 'val_result'] = result
+        file_data.loc[file_data['photo'] == absolute_photo_path, 'photo_date'] = val_date
         print(f"Обновлена запись для фото: {absolute_photo_path}")
     else:
-        next_index = yolka_data['id'].max() + 1 if not yolka_data.empty else 1
+        next_index = file_data['id'].max() + 1 if not file_data.empty else 1
         new_entry = pd.DataFrame([[next_index, absolute_photo_path, '', val_date, result]], 
                                  columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
         
-        yolka_data = pd.concat([yolka_data, new_entry], ignore_index=True)
+        file_data = pd.concat([file_data, new_entry], ignore_index=True)
         print(f"Добавлена новая запись для фото: {absolute_photo_path}")
 
-    yolka_data.to_csv(YOLKA_CSV, index=False)
+    file_data.to_csv(FILE_CSV, index=False)
 
     existing_data = None
     next_index = 1
