@@ -350,9 +350,8 @@ function updateImage() {
 
 
 
-
 function updateImageV(selectId, canvasId, fileNameId) {
-    console.log("Функция updateImage вызвана");
+    console.log("Функция updateImageV вызвана");
     const selectElement = document.getElementById(selectId);
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const canvas = document.getElementById(canvasId);
@@ -368,9 +367,11 @@ function updateImageV(selectId, canvasId, fileNameId) {
     img.src = "/static/images/" + (selectedOption.value).split('images/')[1]; 
     img.onload = function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.width = img.width; // Устанавливаем ширину канваса
+        canvas.height = img.height; // Устанавливаем высоту канваса
+        ctx.drawImage(img, 0, 0);
 
-        loadCoordinates(selectedOption.dataset.txt, ctx, canvas.width, canvas.height);
+        loadCoordinates(selectedOption.dataset.txt, ctx, img.width, img.height);
     };
 
     img.onerror = function() {
@@ -379,8 +380,7 @@ function updateImageV(selectId, canvasId, fileNameId) {
     };
 }
 
-
-function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
+function loadCoordinates(txtFileName, ctx, imgWidth, imgHeight) {
     console.log("Функция loadCoordinates вызвана с файлом:", txtFileName);
     fetch("/static/images/" + txtFileName.split('images/')[1]) 
         .then(response => {
@@ -394,20 +394,18 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
             lines.forEach(line => {
                 const values = line.split(' ').map(Number);
                 if (values.length === 5) {
-                    const [index, x, y, w, h] = values;
+                    const [classId, x, y, width, height] = values;
 
-                    koeff = 1;
+                    const left = (x - width / 2) * imgWidth; // X-координата (центр)
+                    const top = (y - height / 2) * imgHeight; // Y-координата (центр)
+                    const frameWidth = width * imgWidth; // Ширина рамки
+                    const frameHeight = height * imgHeight; // Высота рамки
 
-                    const X = x * canvasWidth;
-                    const Y = y * canvasHeight;
-                    const W = w * canvasWidth;
-                    const H = h * canvasHeight; 
-
-                    console.log(`Index: ${index}, X: ${X}, Y: ${Y}, W: ${W}, H: ${H}`);
+                    console.log(`Class ID: ${classId}, Left: ${left}, Top: ${top}, Width: ${frameWidth}, Height: ${frameHeight}`);
 
                     ctx.strokeStyle = 'red'; 
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(X, Y, 2*W, 2*H); 
+                    ctx.lineWidth = 6;
+                    ctx.strokeRect(left, top, frameWidth, frameHeight); 
                 }
             });
         })
@@ -415,9 +413,6 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
             console.error('Ошибка:', error);
         });
 }
-
-
-
 
 
 
