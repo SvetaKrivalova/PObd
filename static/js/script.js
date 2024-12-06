@@ -139,6 +139,17 @@ function validateForm1() {
     return true;
 }
 
+function validateForm1() {
+    const fileInput = document.getElementById('showUploadForm');
+
+    if (fileInput.files.length > 1000) {
+        alert("Вы можете загрузить разом не более 1000 файлов.");
+        return false; // Предотвращаем отправку формы
+    }
+
+    return true; // Разрешаем отправку формы
+}
+
 function validateForm() {
     const fileInput = document.getElementById('showUploadForm');
     if (fileInput.files.length === 0) {
@@ -157,6 +168,7 @@ function validateForm() {
         alert('Сумма train и val выборок должна быть равна 1.');
         return false; // Отменяем отправку формы
     }
+    alert("Датасет успешно создан. Он находится в папке datasets");
     return true; // Разрешаем отправку формы
 }
 
@@ -183,6 +195,16 @@ document.getElementById('photoForm').onsubmit = function(event) {
         console.error('Ошибка:', error);
     });
 };
+
+function showAlert1() {
+    alert("Класс успешно создан. Он находится в папке выбранного датасета. Называется classes.txt");
+    return true; // Возвращаем true, чтобы форма была отправлена
+}
+
+function showAlert2() {
+    alert("train.py успешно создан. Он находится в папке выбранного датасета.");
+    return true; // Возвращаем true, чтобы форма была отправлена
+}
 
 document.querySelector('form').addEventListener('submit', function(e) {
     const imgsz = document.getElementById('imgsz').value;
@@ -322,6 +344,13 @@ function updateImage() {
     img.src = '/static/images/' + selectedFilePath.split('images/')[1];
 }
 
+
+
+
+
+
+
+
 function updateImageV(selectId, canvasId, fileNameId) {
     console.log("Функция updateImage вызвана");
     const selectElement = document.getElementById(selectId);
@@ -386,6 +415,13 @@ function loadCoordinates(txtFileName, ctx, canvasWidth, canvasHeight) {
             console.error('Ошибка:', error);
         });
 }
+
+
+
+
+
+
+
 
 function recordResult(result) {
     const userNameButton = document.getElementById('userName');
