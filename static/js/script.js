@@ -159,8 +159,9 @@ function validateForm() {
         alert('Сумма train и val выборок должна быть равна 1.');
         return false; // Отменяем отправку формы
     }
-    alert("Датасет успешно создан. Он находится в папке datasets");
+    alert("Датасет успешно создан. Он находится в папке datasets.");
     return true; // Разрешаем отправку формы
+    
 }
 
 document.getElementById('photoForm').onsubmit = function(event) {
@@ -248,6 +249,8 @@ function closeCreateDataSet() {
     document.querySelector('.CreateDataSet').classList.remove('showForCD');
     LoadingScreen.style.display = 'none';
 }
+
+
 
 function openScript() {
     var LoadingScreen = document.querySelector('.Script');
