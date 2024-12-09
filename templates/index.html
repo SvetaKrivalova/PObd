@@ -13,7 +13,7 @@
 
     <header>
 
-       <p> Графическая база - система управления базой размеченных изображений</p> 
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" class="logo">
         
         <div class="tab">
             <button class="tablinks" onclick="openTab(event, 'OneBlock')" id="defaultOpen">Обзор файлов</button>
@@ -104,19 +104,8 @@
                                 <span id="selectedFileName"></span><br>    
                             </div>
                             <img id="fileImage" src="" ><br>
-                            <!-- <canvas id="fileImage" width="2000" height="2000" style="border:1px solid #313131;"></canvas><br> -->
                         </div>
                     </div>
-
-<!-- 
-                    <div class="listFiles">
-                        <label class="fileList" for="file">Список файлов</label>
-                        <select size="10" id="vegetables" name="vegetables" multiple onchange="updateFileCount()">
-                            {% for non in non_empty %}
-                                    <option value="{{ non.photo }}" data-txt="{{ non.txt }}">{{ non.photo }}</option>
-                            {% endfor %}
-                        </select>
-                    </div> -->
             </main>
         </div>
         
@@ -140,14 +129,6 @@
 
                     <div class="listFiles">
                         <p id="fileCount">Всего размеченных фотографий:{{ non_empty_count }}</p>
-                        <!-- <label class="fileList" for="file">Список файлов</label> -->
-                   
-                        <!-- <select size="10" id="vegetables" name="vegetables" onchange="updateFileCount()">
-                            {% for yolka in yolki %}
-                                {% set fileName = yolka.photo.split('/')[-1] %}
-                                <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
-                            {% endfor %}
-                        </select> -->
                     </div>
 
                     <form id="photoForm" action="/copy_photos" method="post" onsubmit="return validateForm()">
@@ -227,6 +208,25 @@
                                 <option value="{{ non.photo }}" data-txt="{{ non.txt }}" data-val="{{ non.val_result }}">{{ fileName }}</option>
                             {% endfor %}
                         </select>
+
+                        <div class="inputsval1">
+                            <label class="inputsval">
+                                <input type="radio" name="validation" id="AllVal" checked onchange="filterFilesV()">
+                                Все фото
+                            </label>
+                            <label class="inputsval">
+                                <input type="radio" name="validation" id="showVal" onchange="filterFilesV()">
+                                Без валидации
+                            </label>
+                            <label class="inputsval">
+                                <input type="radio" name="validation" id="showValidatedPositive" onchange="filterFilesV()">
+                                Валидация положительная
+                            </label>
+                            <label class="inputsval">
+                                <input type="radio" name="validation" id="showValidatedNegative" onchange="filterFilesV()">
+                                Валидация отрицательная
+                            </label>
+                        </div>
                     </div>
                     
                     <div class="thatFileV">
@@ -245,25 +245,6 @@
                     </div>
                 </div> 
             </form>
-
-            <div class="inputsval1">
-                <label class="inputsval">
-                    <input type="radio" name="validation" id="AllVal" checked onchange="filterFilesV()">
-                    Все фото
-                </label>
-                <label class="inputsval">
-                    <input type="radio" name="validation" id="showVal" onchange="filterFilesV()">
-                    Без валидации
-                </label>
-                <label class="inputsval">
-                    <input type="radio" name="validation" id="showValidatedPositive" onchange="filterFilesV()">
-                    Валидация положительная
-                </label>
-                <label class="inputsval">
-                    <input type="radio" name="validation" id="showValidatedNegative" onchange="filterFilesV()">
-                    Валидация отрицательная
-                </label>
-            </div>
             
         </div>
 
