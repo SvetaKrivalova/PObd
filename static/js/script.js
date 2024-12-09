@@ -1,4 +1,3 @@
-// вкладки
 document.getElementById("defaultOpen").click();
 
 function openTab(evt, Tab) {
@@ -18,15 +17,6 @@ function openTab(evt, Tab) {
     evt.currentTarget.className += " active";
 }
 
-
-
-
-
-
-
-
-
-
 function openLoadingScreen() {
     var LoadingScreen = document.querySelector('.LoadingScreen');
     document.querySelector('.overlay').classList.add('show');
@@ -45,8 +35,6 @@ document.getElementById('showUploadForm').addEventListener('click', function() {
     const uploadForm = document.getElementById('uploadForm');
     uploadForm.style.display = uploadForm.style.display === 'none' ? 'block' : 'none';
 })
-
-
 
 function filterFiles() {
     const showAnnotated = document.getElementById('showAnnotated').checked;
@@ -157,10 +145,10 @@ function validateForm() {
 
     if (trainSize + valSize !== 1) {
         alert('Сумма train и val выборок должна быть равна 1.');
-        return false; // Отменяем отправку формы
+        return false;
     }
     alert("Датасет успешно создан. Он находится в папке datasets.");
-    return true; // Разрешаем отправку формы
+    return true; 
     
 }
 
@@ -172,8 +160,6 @@ document.getElementById('photoForm').onsubmit = function(event) {
     const formData = new FormData();
     formData.append('num_photos', numPhotos);
     formData.append('destination_folder', destinationFolder);
-    console.log(`Количество фотографий: ${numPhotos}`);
-    console.log(`Путь к папке назначения: ${destinationFolder}`);
 
     fetch('/copy_photos', {
         method: 'POST',
@@ -190,12 +176,12 @@ document.getElementById('photoForm').onsubmit = function(event) {
 
 function showAlert1() {
     alert("Класс успешно создан. Он находится в папке выбранного датасета. Называется classes.txt");
-    return true; // Возвращаем true, чтобы форма была отправлена
+    return true;
 }
 
 function showAlert2() {
     alert("train.py успешно создан. Он находится в папке выбранного датасета.");
-    return true; // Возвращаем true, чтобы форма была отправлена
+    return true; 
 }
 
 document.querySelector('form').addEventListener('submit', function(e) {
@@ -249,8 +235,6 @@ function closeCreateDataSet() {
     document.querySelector('.CreateDataSet').classList.remove('showForCD');
     LoadingScreen.style.display = 'none';
 }
-
-
 
 function openScript() {
     var LoadingScreen = document.querySelector('.Script');
@@ -328,7 +312,6 @@ function updateFileCount() {
     console.log(`Количество выбранных файлов: ${count}`);
 }
 
-
 function updateImage() {
     var select = document.getElementById("file_select");
     var selectedFileName = select.options[select.selectedIndex].text;
@@ -338,22 +321,12 @@ function updateImage() {
     img.src = '/static/images/' + selectedFilePath.split('images/')[1];
 }
 
-
-
-
-
-
-
 function updateImageV(selectId, canvasId, fileNameId) {
-    console.log("Функция updateImageV вызвана");
     const selectElement = document.getElementById(selectId);
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
     const fileNameElement = document.getElementById(fileNameId);
-
-    console.log("Выбранный файл:", selectedOption.value);
-    console.log("Текстовый файл:", selectedOption.dataset.txt);
 
     fileNameElement.textContent = "/static/images/" + (selectedOption.dataset.txt).split('images/')[1];
 
@@ -361,8 +334,8 @@ function updateImageV(selectId, canvasId, fileNameId) {
     img.src = "/static/images/" + (selectedOption.value).split('images/')[1]; 
     img.onload = function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        canvas.width = img.width; // Устанавливаем ширину канваса
-        canvas.height = img.height; // Устанавливаем высоту канваса
+        canvas.width = img.width;
+        canvas.height = img.height; 
         ctx.drawImage(img, 0, 0);
 
         loadCoordinates(selectedOption.dataset.txt, ctx, img.width, img.height);
@@ -407,10 +380,6 @@ function loadCoordinates(txtFileName, ctx, imgWidth, imgHeight) {
             console.error('Ошибка:', error);
         });
 }
-
-
-
-
 
 function recordResult(result) {
     const userNameButton = document.getElementById('userName');
@@ -511,8 +480,5 @@ async function addUser () {
 }
 
 document.getElementById('addUser').addEventListener('click', addUser );
-
 document.addEventListener('DOMContentLoaded', loadUsers)
-
 window.onload = loadUsers;
-
