@@ -4,77 +4,44 @@ body {
 }
 
 header {
-  display: flex; /* Используем flexbox для горизонтального расположения */
-  justify-content: space-between; /* Распределяем пространство между элементами */
-  align-items: center; /* Выравниваем элементы по центру по вертикали */
-  padding: 10px 20px; /* Отступы внутри хедера */
-  background-color: #f0f0f0; /* Цвет фона хедера */
-  border-bottom: 1px solid #ccc; /* Нижняя граница хедера */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ccc;
 }
 
-.logo{
-  
+.logo {
   height: 80px;
 }
 
 .tab {
-  display: flex; /* Горизонтальное расположение кнопок */
+  display: flex;
 }
 
 .tab button {
-  margin: 0 5px; /* Отступы между кнопками */
-  padding: 10px 15px; /* Внутренние отступы кнопок */
-  border: none; /* Убираем стандартные границы */
-  background-color: #007BFF; /* Цвет фона кнопок */
-  color: white; /* Цвет текста кнопок */
-  cursor: pointer; /* Указатель при наведении */
-  border-radius: 5px; /* Закругленные углы кнопок */
-}
-
-.tab button:hover {
-  background-color: #0056b3; /* Цвет кнопок при наведении */
-}
-.tabcontent {
-  display: none; /* Скрываем содержимое всех вкладок по умолчанию */
-}
-.active {
-  display: block; /* Показываем содержимое активной вкладки */
-}
-
-.close-x {
-  background: none;
+  margin: 0 5px;
+  padding: 10px 15px;
   border: none;
+  background-color: #007BFF;
+  color: white;
   cursor: pointer;
-  font-size: 32px;
-  color: #333;
+  border-radius: 5px;
+  transition: background-color 0.3s;
 }
 
-.close-x:hover{
-  background-color:  white;
-}
-
-.close-x2 {
-  background: none;
+.file-btn {
+  display: inline-block;
+  padding: 10px 15px;
+  background-color: #007BFF;
+  color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 32px;
-  color: #333;
-}
-
-.close-x2:hover{
-  background-color:  white;
-}
-
-
-/* Первый блок */
-main {
-  padding: 20px;
-}
-
-h1 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
 }
 
 .btnDownload {
@@ -90,26 +57,53 @@ h1 {
   transition: background-color 0.3s;
 }
 
-.btnDownload:hover {
+.tab button:hover, .file-btn:hover, .btnDownload:hover, button:hover, .buttonOk:hover {
   background-color: #0056b3;
 }
 
+.tabcontent, .overlay, .LoadingScreen, .CreateDataSet {
+  display: none;
+}
 
-/* Экран загрузки файлов */
+.active {
+  display: block;
+}
 
-.overlay {
+.close-x, .close-x2 {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 32px;
+  color: #333;
+}
+
+.close-x:hover, .close-x2:hover {
+  background-color: white;
+}
+
+main, #TwoBlock, #ThreeBlock, #AutoBlock {
+  padding: 20px;
+}
+
+h1 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.overlay, .overlayForCD{
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8); /* Затемнение с прозрачностью 70% */
-  display: none; /* Скрываем по умолчанию */
-  z-index: 999; /* Устанавливаем на передний план */
+  background-color: rgba(0, 0, 0, 0.8);
+  display: none;
+  z-index: 999;
 }
 
 .LoadingScreen {
-  display: none; 
+  display: none;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -120,62 +114,44 @@ h1 {
   z-index: 9999;
   width: 650px;
   padding: 20px;
+  border: none;
+  opacity: 1;
+}
+
+.CreateDataSet {
+  display: none; 
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  width: 650px;
+  padding: 20px;
   border: none;   
   opacity: 1;
-  
-}
-.show {
-  display: block; /* Показываем попап и затемнение */
 }
 
-
-
-
-
-
-
-
+.show, .showForCD {
+  display: block;
+}
 
 .VerhLoadingScreen {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-
-
-
-
-
-
-
-.file-btn {
-  display: inline-block;
-  padding: 10px 15px;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  text-align: center;
-  margin-bottom: 10px;
-  transition: background-color 0.3s;
-}
-
-.file-btn:hover {
-  background-color: #0056b3;
-}
-
-.custom-file-input {
-  display: none; 
+  margin-bottom: 15px;
 }
 
 .inputsval1 {
   margin: 20px 0;
   width: 250px;
+  font-size: 16px;
 }
 
-.viewFiles {
+.viewFiles, .viewFilesV {
   display: flex;
   flex-direction: row;
   align-items: baseline;
@@ -206,156 +182,6 @@ h1 {
   max-height: 500px;
 }
 
-.thatFile {
-  flex: 1;
-  /* padding: 15px; */
-  font-size: 24px;
-  
-}
-
-.nameFile{
-  display: flex;
-  flex-direction: row;
-}
-
-.selectedFileName{
-  padding-right: 8px;
-  margin: 0;
-}
-
-#fileImage {
-  max-width: 100%;
-  border-radius: 8px;
-  max-width: 500px;
-  max-height: 800px;
-} 
-
-select{
-  font-size: 20px;
-}
-
-
-
-
-
-
-/* Второй блок */
-
-#TwoBlock {
-  padding: 20px;
-}
-
-
-button {
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-.overlayForCD {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8); /* Затемнение с прозрачностью 70% */
-  display: none; /* Скрываем по умолчанию */
-  z-index: 999; /* Устанавливаем на передний план */
-}
-
-.CreateDataSet {
-  display: none; 
-  position: absolute;
-  top: 60%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  border-radius: 18px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  z-index: 9999;
-  width: 650px;
-  padding: 20px;
-  border: none;   
-  opacity: 1;
-  
-}
-
-
-
-
-
-.showForCD {
-  display: block; /* Показываем попап и затемнение */
-}
-
-.VerhLoadingScreen {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.listFiles {
-  margin-bottom: 15px;
-}
-
-.fileList {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-
-
-#datasets{
-  width: 170px;
-  height: 40px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  margin-bottom: 15px;
-}
-
-input[type="number"],
-input[type="text"] {
-  width: 150px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 15px;
-}
-
-.inputsval1{
-  font-size: 16px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-
-
-
-/* Третий блок */
-
-
-#ThreeBlock { 
-  padding: 20px;
-}
-
-.viewFilesV {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-}
-
 .listFilessV{
   display: flex;
   flex-direction: column;
@@ -379,30 +205,65 @@ input[type="text"] {
   margin-bottom: 15px;
 }
 
-.thatFileV {
+.thatFile, .thatFileV {
   flex: 1;
-  /* padding: 15px; */
   font-size: 24px;
-  
 }
 
-.nameFileV{
+.nameFile, .nameFileV {
   display: flex;
   flex-direction: row;
 }
 
-.selectedFileNameV{
+.selectedFileName, .selectedFileNameV {
   padding-right: 8px;
   margin: 0;
 }
 
-#fileImageV {
+#fileImage, #fileImageV {
   max-width: 100%;
   border-radius: 8px;
   max-width: 500px;
   max-height: 800px;
-} 
+}
 
+select {
+  font-size: 20px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.fileList {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.custom-file-input {
+  display: none; 
+}
+
+#datasets {
+  width: 170px;
+  height: 40px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+input[type="number"],
+input[type="text"] {
+  width: 150px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
 
 .login-container {
   background-color: white;
@@ -413,22 +274,9 @@ input[type="text"] {
   text-align: center;
 }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
 label {
   display: block;
   margin-bottom: 5px;
-}
-
-select {
-  /* width: 100%; */
-  padding: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
 }
 
 button {
@@ -439,35 +287,6 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-.or {
-  margin: 10px 0;
-  font-weight: bold;
-}
-
-.message {
-  margin-top: 15px;
-  color: red;
-}
-
-/* Авторизация */
-
-#AutoBlock{
-  padding: 20px;
-}
-
-#userSelect{
-  width: 400px;
-}
-
-#newUserName{
-  width: 380px;
-  height: 20px;
 }
 
 .buttonOk{
@@ -484,16 +303,32 @@ button:hover {
   transition: background-color 0.3s;
 }
 
+.or {
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.message {
+  margin-top: 15px;
+  color: red;
+}
+
+#userSelect {
+  width: 400px;
+}
+
+#newUserName {
+  width: 380px;
+  height: 20px;
+}
+
 button.tablinksName{
   background-color: #f0f0f0;
   color: #333;
   border-radius: 20px;
   border: 2px solid #007BFF;
-  
-
 }
 
 button.tablinksName:hover{
   background-color: #dadada;
-  
 }
