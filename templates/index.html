@@ -88,13 +88,13 @@
                         <div class="listFiles">
                             
                             <label class="fileList" for="file">Список файлов</label>
-                            <select size="20" id="fruits" name="fruits" onchange="updateImage('fruits', 'fileImage', 'selectedFileName')">
-                                {% for yolka in yolki %}
-                                    {% set fileName = yolka.photo.split('/')[-1] %}
-                                    <option value="{{ yolka.photo }}" data-txt="{{ yolka.txt }}" data-val="{{ yolka.val_result }}">{{ fileName }}</option>
+                            <select size="20" id="file_select" name="file_select" onchange="updateImage('file_select', 'fileImage', 'selectedFileName')">
+                                {% for file in files %}
+                                    {% set fileName = file.photo.split('/')[-1] %}
+                                    <option value="{{ file.photo }}" data-txt="{{ file.txt }}" data-val="{{ file.val_result }}">{{ fileName }}</option>
                                 {% endfor %}
                             </select>
-                            <p id="fileCount">Всего файлов:{{ yolki|length }}</p>
+                            <p id="fileCount">Всего файлов:{{ files|length }}</p>
                             <p id="fileCount">Всего файлов с разметкой:{{ non_empty_count }}</p>
                         </div>
                     
@@ -202,7 +202,7 @@
                 <div class="viewFilesV">
                     <div class="listFilesV">
                         <label class="fileList" for="file">Список файлов</label>
-                        <select size="20" id="fruitsV" name="fruits" onchange="updateImageV('fruitsV', 'fileImageV', 'selectedFileNameV')">
+                        <select size="20" id="file_selectV" name="file_select" onchange="updateImageV('file_selectV', 'fileImageV', 'selectedFileNameV')">
                             {% for non in non_empty %}
                                 {% set fileName = non.photo.split('/')[-1] %}
                                 <option value="{{ non.photo }}" data-txt="{{ non.txt }}" data-val="{{ non.val_result }}">{{ fileName }}</option>

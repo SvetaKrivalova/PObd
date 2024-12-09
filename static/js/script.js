@@ -51,7 +51,7 @@ document.getElementById('showUploadForm').addEventListener('click', function() {
 function filterFiles() {
     const showAnnotated = document.getElementById('showAnnotated').checked;
     const showValidated = document.getElementById('showValidated').checked;
-    const select = document.getElementById('fruits');
+    const select = document.getElementById('file_select');
     
     for (let i = 0; i < select.options.length; i++) {
         const option = select.options[i];
@@ -80,7 +80,7 @@ function filterFilesV() {
     const showVal = document.getElementById('showVal').checked;
     const showValidatedPositive = document.getElementById('showValidatedPositive').checked;
     const showValidatedNegative = document.getElementById('showValidatedNegative').checked;
-    const select = document.getElementById('fruitsV');
+    const select = document.getElementById('file_selectV');
     
     for (let i = 0; i < select.options.length; i++) {
         const option = select.options[i];
@@ -330,7 +330,7 @@ function updateFileCount() {
 
 
 function updateImage() {
-    var select = document.getElementById("fruits");
+    var select = document.getElementById("file_select");
     var selectedFileName = select.options[select.selectedIndex].text;
     var selectedFilePath = select.value;
     document.getElementById("selectedFileName").innerText = selectedFileName;
@@ -390,10 +390,10 @@ function loadCoordinates(txtFileName, ctx, imgWidth, imgHeight) {
                 if (values.length === 5) {
                     const [classId, x, y, width, height] = values;
 
-                    const left = (x - width / 2) * imgWidth; // X-координата (центр)
-                    const top = (y - height / 2) * imgHeight; // Y-координата (центр)
-                    const frameWidth = width * imgWidth; // Ширина рамки
-                    const frameHeight = height * imgHeight; // Высота рамки
+                    const left = (x - width / 2) * imgWidth;
+                    const top = (y - height / 2) * imgHeight;
+                    const frameWidth = width * imgWidth;
+                    const frameHeight = height * imgHeight;
 
                     console.log(`Class ID: ${classId}, Left: ${left}, Top: ${top}, Width: ${frameWidth}, Height: ${frameHeight}`);
 
@@ -419,7 +419,7 @@ function recordResult(result) {
     if (currentUserName === 'ИМЯ ПОЛЬЗОВАТЕЛЯ') {
         alert('Зайдите в аккаунт'); 
     } else {
-        const selectElement = document.getElementById('fruitsV');
+        const selectElement = document.getElementById('file_selectV');
         const selectedPhoto = selectElement.value;
 
         if (!selectedPhoto) {
@@ -428,7 +428,7 @@ function recordResult(result) {
         }
 
         const formData = new FormData();
-        formData.append('fruits', selectedPhoto);
+        formData.append('file_select', selectedPhoto);
         formData.append('result', result);
         formData.append('username', currentUserName);
 
@@ -440,7 +440,7 @@ function recordResult(result) {
             if (response.ok) {
                 if (selectElement.selectedIndex < selectElement.options.length - 1) {
                     selectElement.selectedIndex += 1;
-                    updateImageV('fruitsV', 'fileImageV', 'selectedFileNameV');
+                    updateImageV('file_selectV', 'fileImageV', 'selectedFileNameV');
                 } else {
                     alert("Это последняя фотография.");
                 }
@@ -467,7 +467,7 @@ function endProcess() {
 }
 
 window.onload = function() {
-    updateImage('fruitsV', 'fileImageV', 'selectedFileNameV');
+    updateImage('files_selectV', 'fileImageV', 'selectedFileNameV');
 };
 
 async function loadUsers() {

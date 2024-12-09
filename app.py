@@ -3,10 +3,8 @@ import pandas as pd
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 import shutil
-import csv
 import sys
 from sklearn.model_selection import train_test_split
-import uuid
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -77,19 +75,19 @@ def get_users():
 
 @app.route('/')
 def index():
-    yolki = pd.read_csv(FILE_CSV)
+    files = pd.read_csv(FILE_CSV)
     datasets = pd.read_csv(DATASETS_CSV)
     users = pd.read_csv(USER_CSV)
     vals = pd.read_csv(VAL_CSV)
-    non_empty_count = yolki['txt'].notnull().sum()
-    non_empty = yolki[yolki['txt'].notnull()]
+    non_empty_count = files['txt'].notnull().sum()
+    non_empty = files[files['txt'].notnull()]
 
-    return render_template('index.html', yolki=yolki.to_dict(orient='records'), non_empty=non_empty.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'), users=users.to_dict(orient='records'), vals=vals.to_dict(orient='records'))
+    return render_template('index.html', files=files.to_dict(orient='records'), non_empty=non_empty.to_dict(orient='records'), non_empty_count=non_empty_count, datasets=datasets.to_dict(orient='records'), users=users.to_dict(orient='records'), vals=vals.to_dict(orient='records'))
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
     if 'files' not in request.files:
-        return "No file part", 400
+        return "", 400
     
     files = request.files.getlist('files')
 
@@ -98,7 +96,7 @@ def upload_files():
 
     for file in files:
         if file.filename == '':
-            return "No selected file", 400
+            return "", 400
         
         filename = file.filename
         file_extension = os.path.splitext(filename)[1].lower()
@@ -106,12 +104,11 @@ def upload_files():
         
         try:
             file.save(file_path)
-            print(f"Файл сохранен: {file_path}")
             if file_extension != '.txt':
                 image_files.add(filename)
         except Exception as e:
-            print(f"Ошибка при сохранении файла {filename}: {e}")
-            return "Error saving file", 500
+            print(f"{e}")
+            return "", 500
 
     for file in files:
         filename = file.filename
@@ -130,7 +127,6 @@ def upload_files():
                     'photo_date': datetime.now(),
                     'val_result': None  
                 })
-                print(f"Текстовый файл найден: {absolute_txt_path}")
             else:
                 new_entries.append({
                     'photo': absolute_path,
@@ -138,16 +134,13 @@ def upload_files():
                     'photo_date': datetime.now(),
                     'val_result': None 
                 })
-                print(f"Текстовый файл не найден для изображения: {txt_file_path}")
 
         elif file_extension == '.txt':
-            image_found = False
             for ext in ['.jpg', '.jpeg', '.png']:
                 image_filename = os.path.splitext(filename)[0] + ext
                 image_path = os.path.join(images_dir, image_filename)
 
                 if os.path.exists(image_path):
-                    image_found = True
                     corresponding_image_path = os.path.abspath(image_path).replace("\\", "/")
                     new_entries.append({
                         'photo': corresponding_image_path,
@@ -155,30 +148,25 @@ def upload_files():
                         'photo_date': datetime.now(),
                         'val_result': None 
                     })
-                    print(f"Обновлено поле txt для {corresponding_image_path}")
                     break
-
-            if not image_found:
-                print(f"Изображение для текстового файла не найдено: {image_filename}")
 
     try:
         if os.path.exists(FILE_CSV):
-            yolki_df = pd.read_csv(FILE_CSV)
+            files_df = pd.read_csv(FILE_CSV)
         else:
-            yolki_df = pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
+            files_df = pd.DataFrame(columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
 
         if new_entries:
             new_entries_df = pd.DataFrame(new_entries)
-            yolki_df = pd.concat([yolki_df, new_entries_df], ignore_index=True)
+            files_df = pd.concat([files_df, new_entries_df], ignore_index=True)
 
-        yolki_df.drop_duplicates(subset=['photo'], keep='last', inplace=True)
-        yolki_df.reset_index(drop=True, inplace=True)
-        yolki_df['id'] = range(1, len(yolki_df) + 1) 
-        yolki_df.to_csv(FILE_CSV, index=False) 
-        print("Записи успешно добавлены в CSV.")
+        files_df.drop_duplicates(subset=['photo'], keep='last', inplace=True)
+        files_df.reset_index(drop=True, inplace=True)
+        files_df['id'] = range(1, len(files_df) + 1) 
+        files_df.to_csv(FILE_CSV, index=False) 
     except Exception as e:
-        print(f"Ошибка при сохранении в CSV: {e}")
-        return "Error saving to CSV", 500
+        print(f"{e}")
+        return "", 500
     
     for filename in os.listdir(images_dir):
         source_file = os.path.join(images_dir, filename)
@@ -194,12 +182,6 @@ def copy_photos():
     train_size = request.form.get('train_size', type=float)
     val_size = request.form.get('val_size', type=float)
 
-    if dataset_name is None:
-        return jsonify({"error": "Необходимо указать название датасета."}), 400
-
-    if train_size + val_size != 1.0:
-        return jsonify({"error": "Сумма train_size и val_size должна быть равна 1."}), 400
-
     datasets_df = pd.read_csv(DATASETS_CSV)
     new_dataset_id = len(datasets_df) + 1
     new_dataset = {
@@ -207,20 +189,20 @@ def copy_photos():
         'dataset_path': os.path.abspath(os.path.join(destination_dataset_folder, dataset_name)).replace("\\", "/")
     }
 
-    dataset_folder_a = os.path.join(destination_dataset_folder, dataset_name)
+    dataset_folder_base = os.path.join(destination_dataset_folder, dataset_name)
     dataset_folder = os.path.join(destination_dataset_folder, dataset_name, "dataset")
-    os.makedirs(dataset_folder_a, exist_ok=True)
+    os.makedirs(dataset_folder_base, exist_ok=True)
     os.makedirs(dataset_folder, exist_ok=True)
 
-    yolki_df = pd.read_csv(FILE_CSV)
+    files_df = pd.read_csv(FILE_CSV)
 
-    yolki_df['txt_exists'] = yolki_df['photo'].apply(lambda x: os.path.exists(os.path.join(os.path.dirname(__file__), "Images", os.path.splitext(x)[0] + '.txt')))
-    yolki_df_filtered = yolki_df[yolki_df['txt_exists']]
+    files_df['txt_exists'] = files_df['photo'].apply(lambda x: os.path.exists(os.path.join(os.path.dirname(__file__), "Images", os.path.splitext(x)[0] + '.txt')))
+    files_df_filtered = files_df[files_df['txt_exists']]
 
     if num_photos is not None:
-        selected_photos = yolki_df_filtered.sample(n=num_photos, random_state=1)
+        selected_photos = files_df_filtered.sample(n=num_photos, random_state=1)
     else:
-        selected_photos = yolki_df_filtered
+        selected_photos = files_df_filtered
 
     for _, row in selected_photos.iterrows():
         photo_path = os.path.join(os.path.dirname(__file__), "Images", row['photo'])
@@ -230,7 +212,7 @@ def copy_photos():
         if os.path.exists(os.path.join(os.path.dirname(__file__), "Images", txt_file)):
             shutil.copy(os.path.join(os.path.dirname(__file__), "Images", txt_file), dataset_folder)
 
-    split_and_save_dataset(dataset_folder, dataset_folder_a, test_size=val_size)
+    split_and_save_dataset(dataset_folder, dataset_folder_base, test_size=val_size)
 
     datasets_df = pd.read_csv(DATASETS_CSV)
     new_dataset_df = pd.DataFrame([new_dataset])
@@ -269,9 +251,6 @@ def split_and_save_dataset(source_folder, destination_folder, test_size):
         if txt_file in texts:
             shutil.copy(os.path.join(source_folder, txt_file), os.path.join(val_folder, txt_file))
 
-    print(f"Количество файлов в train: {len(train_files)}")
-    print(f"Количество файлов в val: {len(val_files)}")
-
 @app.route('/create_class', methods=['POST'])
 def create_class():
     selected_dataset = request.form.get('selected_dataset')
@@ -285,16 +264,14 @@ def create_class():
         try:
             with open(classes_file_path, 'a') as f:
                 f.write(class_name + '\n')
-            print(f"Имя класса '{class_name}' добавлено в файл '{classes_file_path}'")
         except Exception as e:
-            print(f"Ошибка при записи в {classes_file_path}: {e}")
+            print(f"{e}")
 
         try:
             with open(classes_file_path, 'r') as f:
                 class_names = [line.strip() for line in f.readlines()]
-            print(f"Имена классов: {class_names}")
         except Exception as e:
-            print(f"Ошибка при чтении из {classes_file_path}: {e}")
+            print(f"{e}")
             class_names = []
 
         num_classes = len(class_names)
@@ -305,11 +282,8 @@ def create_class():
                 f.write(f"val: ./val\n")
                 f.write(f"nc: {num_classes}\n")
                 f.write(f"names: {class_names}\n")
-            print(f"Файл {data_yaml_path} успешно создан.")
         except Exception as e:
-            print(f"Ошибка при записи в {data_yaml_path}: {e}")
-    else:
-        print("Не удалось получить выбранный датасет или имя класса.")
+            print(f"{e}")
     
     return '', 204 
 
@@ -348,9 +322,8 @@ if __name__ == "__main__":
         with open(script_path, 'w') as f:
             f.write(script_content)
 
-        flash('Файл train.py успешно создан!', 'success')
     except Exception as e:
-        flash(f'Ошибка при создании файла: {e}', 'error')
+        print(f"{e}")
 
     return '', 204 
 
@@ -358,35 +331,28 @@ if __name__ == "__main__":
 def record_result():
     print(request.form)
     
-    selected_photo = request.form.get('fruits')
+    selected_photo = request.form.get('file_select')
     result = int(request.form.get('result'))
     username = request.form.get('username')
     val_date = pd.Timestamp.now()
 
     if selected_photo is None or result is None or username is None:
-        print("Данные не получены.")
         return '', 400 
 
-    print(f"Получено фото: {selected_photo}, результат: {result}, пользователь: {username}")
-
     absolute_photo_path = os.path.abspath(selected_photo).replace("\\", "/")
-
     file_data = pd.read_csv(FILE_CSV)
 
     if absolute_photo_path in file_data['photo'].values:
         file_data.loc[file_data['photo'] == absolute_photo_path, 'val_result'] = result
         file_data.loc[file_data['photo'] == absolute_photo_path, 'photo_date'] = val_date
-        print(f"Обновлена запись для фото: {absolute_photo_path}")
     else:
         next_index = file_data['id'].max() + 1 if not file_data.empty else 1
         new_entry = pd.DataFrame([[next_index, absolute_photo_path, '', val_date, result]], 
                                  columns=['id', 'photo', 'txt', 'photo_date', 'val_result'])
         
         file_data = pd.concat([file_data, new_entry], ignore_index=True)
-        print(f"Добавлена новая запись для фото: {absolute_photo_path}")
 
     file_data.to_csv(FILE_CSV, index=False)
-
     existing_data = None
     next_index = 1
     try:
